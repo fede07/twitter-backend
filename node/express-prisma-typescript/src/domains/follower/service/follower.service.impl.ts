@@ -12,4 +12,8 @@ export class FollowerServiceImpl implements FollowerService {
   async unfollowUser (followedId: string, followerId: string): Promise<void> {
     await this.followerRepository.unfollowUser(followedId, followerId)
   }
+
+  async isFollowing (followedId: string, followerId: string): Promise<boolean> {
+    return await this.followerRepository.isFollowing(followedId, followerId)
+  }
 }

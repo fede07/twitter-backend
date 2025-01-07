@@ -58,4 +58,16 @@ export class UserRepositoryImpl implements UserRepository {
     })
     return user ? new ExtendedUserDTO(user) : null
   }
+
+  async isPrivate (userId: string): Promise<boolean> {
+    const user = await this.db.user.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        isPrivate: true
+      }
+    })
+    return user?.isPrivate ?? false
+  }
 }
