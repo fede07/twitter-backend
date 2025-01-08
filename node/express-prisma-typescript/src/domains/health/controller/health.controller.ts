@@ -5,6 +5,16 @@ import 'express-async-errors'
 
 export const healthRouter = Router()
 
+/**
+ * @swagger
+ * /health:
+ *  get:
+ *  summary: Health check endpoint
+ *  description: Health check endpoint
+ *  responses:
+ *  200:
+ *  description: Health check successful
+ */
 healthRouter.get('/', (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).send()
 })

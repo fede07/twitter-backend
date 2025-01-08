@@ -3,14 +3,13 @@ import HttpStatus from 'http-status'
 // express-async-errors is a module that handles async errors in express, don't forget import it in your new controllers
 import 'express-async-errors'
 
-import { db, BodyValidation, ForbiddenException } from '@utils'
+import { db, BodyValidation } from '@utils'
 
 import { PostRepositoryImpl } from '../repository'
 import { PostService, PostServiceImpl } from '../service'
 import { CreatePostInputDTO } from '../dto'
 import { FollowerRepositoryImpl } from '@domains/follower/repository/follower.repository.impl'
 import { UserRepositoryImpl } from '@domains/user/repository'
-import { NotFoundError } from '@prisma/client/runtime'
 
 export const postRouter = Router()
 
@@ -46,9 +45,7 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
     const posts = await service.getPostsByAuthor(userId, authorId)
     return res.status(HttpStatus.OK).json(posts)
   } catch (error) {
-    if (error instanceof NotFoundError || error instanceof ForbiddenException) {
-      return res.status(HttpStatus.NOT_FOUND).send('Not found')
-    }
+    return res.status(HttpStatus.NOT_FOUND).send('Not found')
   }
 })
 

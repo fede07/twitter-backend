@@ -7,7 +7,12 @@ import { Constants, NodeEnv, Logger } from '@utils'
 import { router } from '@router'
 import { ErrorHandling } from '@utils/errors'
 
+import setupSwagger from './utils/swagger.loader'
+
 const app = express()
+
+// Set up Swagger
+setupSwagger(app)
 
 // Set up request logger
 if (Constants.NODE_ENV === NodeEnv.DEV) {
