@@ -7,14 +7,15 @@ export const healthRouter = Router()
 
 /**
  * @swagger
- * /health:
- *  get:
- *  summary: Health check endpoint
- *  description: Health check endpoint
- *  responses:
- *  200:
- *  description: Health check successful
+ * /api/health:
+ *   get:
+ *     summary: Health check endpoint
+ *     description: Verifies if the server is running and healthy.
+ *     responses:
+ *       200:
+ *         description: Server is running and healthy.
  */
+
 healthRouter.get('/', (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).send()
 })

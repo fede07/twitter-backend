@@ -14,7 +14,7 @@ const options: OAS3Options = {
       }
     ]
   },
-  apis: ['./src/domains/health/*.ts']
+  apis: ['./src/domains/**/*.ts']
 }
 
 export default options
