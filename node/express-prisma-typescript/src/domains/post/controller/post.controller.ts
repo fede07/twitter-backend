@@ -16,6 +16,100 @@ export const postRouter = Router()
 // Use dependency injection
 const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
 
+/**
+ * @swagger
+ * /api/posts:
+ *   get:
+ *     summary: Get latest posts
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         required: false
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         required: false
+ *       - in: query
+ *         name: after
+ *         schema:
+ *           type: string
+ *         required: false
+ *     responses:
+ *       200:
+ *         description: List of latest posts
+ */
+
+/**
+ * @swagger
+ * /api/posts/{postId}:
+ *   get:
+ *     summary: Get post by ID
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Post details
+ *       404:
+ *         description: Not found
+ */
+
+/**
+ * @swagger
+ * /api/posts/by_user/{userId}:
+ *   get:
+ *     summary: Get posts by user
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of posts by user
+ *       404:
+ *         description: Not found
+ */
+
+/**
+ * @swagger
+ * /api/posts:
+ *   post:
+ *     summary: Create a new post
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreatePostInputDTO'
+ *     responses:
+ *       201:
+ *         description: Post created successfully
+ */
+
+/**
+ * @swagger
+ * /api/posts/{postId}:
+ *   delete:
+ *     summary: Delete a post
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Post deleted successfully
+ */
+
 postRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { limit, before, after } = req.query as Record<string, string>

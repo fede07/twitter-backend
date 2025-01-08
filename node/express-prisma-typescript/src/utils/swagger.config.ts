@@ -17,4 +17,8 @@ const options: OAS3Options = {
   apis: ['./src/domains/**/*.ts']
 }
 
-export default options
+const swaggerOptions = {
+  explorer: true
+}
+
+export { options, swaggerOptions }

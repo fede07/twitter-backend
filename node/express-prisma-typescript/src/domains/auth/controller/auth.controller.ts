@@ -14,6 +14,46 @@ export const authRouter = Router()
 // Use dependency injection
 const service: AuthService = new AuthServiceImpl(new UserRepositoryImpl(db))
 
+/**
+ * @swagger
+ * /api/auth/signup:
+ *   post:
+ *     summary: Sign up a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SignupInputDTO'
+ *     responses:
+ *       201:
+ *         description: User signed up successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ */
+
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Log in a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginInputDTO'
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ */
+
 authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, res: Response) => {
   const data = req.body
 

@@ -1,16 +1,16 @@
 import { Express } from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
-import swaggerConfig from './swagger.config'
+import { options, swaggerOptions } from './swagger.config'
 
 const setupSwagger = (app: Express): void => {
   try {
     // Generate Swagger Specification
-    const swaggerSpec = swaggerJsdoc(swaggerConfig)
+    const swaggerSpec = swaggerJsdoc(options)
 
     // Restrict access to Swagger docs in production
     if (process.env.NODE_ENV !== 'production') {
-      app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+      app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions))
       console.log('Swagger docs available at /api-docs')
     } else {
       console.log('Swagger is disabled in production.')
