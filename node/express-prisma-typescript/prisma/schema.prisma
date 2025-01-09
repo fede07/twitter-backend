@@ -29,9 +29,10 @@ model User {
   deletedAt DateTime? // Optional value
 
   posts     Post[]
-  follows   Follow[] @relation(name: "follows")
-  followers Follow[] @relation(name: "followers")
-  isPrivate Boolean  @default(false) // Default value is false
+  follows   Follow[]   @relation(name: "follows")
+  followers Follow[]   @relation(name: "followers")
+  isPrivate Boolean    @default(false) // Default value is false
+  Reaction  Reaction[]
 }
 
 model Follow {
@@ -59,5 +60,24 @@ model Post {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Optional value
 
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
+  author   User       @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
+  Reaction Reaction[]
+}
+
+enum ReactionType {
+  LIKE
+  RETWEET
+}
+
+model Reaction {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // Primary Key
+
+  userId String       @db.Uuid // Foreign Key
+  postId String       @db.Uuid // Foreign Key
+  type   ReactionType
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) // One to many
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade) // One to many
 }

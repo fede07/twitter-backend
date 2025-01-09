@@ -18,6 +18,8 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db))
  * /api/users:
  *   get:
  *     summary: Get user recommendations
+ *     tags:
+ *       - Users
  *     parameters:
  *       - in: query
  *         name: limit
@@ -39,6 +41,8 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db))
  * /api/users/me:
  *   get:
  *     summary: Get current user
+ *     tags:
+ *        - Users
  *     responses:
  *       200:
  *         description: Current user details
@@ -49,6 +53,8 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db))
  * /api/users/{userId}:
  *   get:
  *     summary: Get user by ID
+ *     tags:
+ *        - Users
  *     parameters:
  *       - in: path
  *         name: userId
@@ -65,6 +71,8 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db))
  * /api/users:
  *   delete:
  *     summary: Delete current user
+ *     tags:
+ *        - Users
  *     responses:
  *       200:
  *         description: User deleted successfully

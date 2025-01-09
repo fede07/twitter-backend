@@ -16,9 +16,12 @@ const service: AuthService = new AuthServiceImpl(new UserRepositoryImpl(db))
 
 /**
  * @swagger
- * /api/auth/signup:
+ * /signup:
  *   post:
- *     summary: Sign up a new user
+ *     summary: Register a new user
+ *     description: Creates a new user account and returns a token.
+ *     tags:
+ *       - Authentication
  *     requestBody:
  *       required: true
  *       content:
@@ -27,33 +30,16 @@ const service: AuthService = new AuthServiceImpl(new UserRepositoryImpl(db))
  *             $ref: '#/components/schemas/SignupInputDTO'
  *     responses:
  *       201:
- *         description: User signed up successfully
+ *         description: User successfully registered.
  *         content:
  *           application/json:
  *             schema:
- *               type: string
+ *               $ref: '#/components/schemas/TokenDTO'
+ *       400:
+ *         description: Validation error.
+ *       409:
+ *         description: User already exists.
  */
-
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     summary: Log in a user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/LoginInputDTO'
- *     responses:
- *       200:
- *         description: User logged in successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: string
- */
-
 authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, res: Response) => {
   const data = req.body
 
@@ -62,6 +48,34 @@ authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, 
   return res.status(HttpStatus.CREATED).json(token)
 })
 
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login an existing user
+ *     description: Authenticates a user and returns a token.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginInputDTO'
+ *     responses:
+ *       200:
+ *         description: User successfully logged in.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TokenDTO'
+ *       400:
+ *         description: Validation error.
+ *       401:
+ *         description: Unauthorized. Incorrect credentials.
+ *       404:
+ *         description: User not found.
+ */
 authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, res: Response) => {
   const data = req.body
 

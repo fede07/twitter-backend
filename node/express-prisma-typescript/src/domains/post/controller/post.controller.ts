@@ -21,6 +21,8 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  * /api/posts:
  *   get:
  *     summary: Get latest posts
+ *     tags:
+ *       - Posts
  *     parameters:
  *       - in: query
  *         name: limit
@@ -47,6 +49,8 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  * /api/posts/{postId}:
  *   get:
  *     summary: Get post by ID
+ *     tags:
+ *     - Posts
  *     parameters:
  *       - in: path
  *         name: postId
@@ -65,6 +69,8 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  * /api/posts/by_user/{userId}:
  *   get:
  *     summary: Get posts by user
+ *     tags:
+ *     - Posts
  *     parameters:
  *       - in: path
  *         name: userId
@@ -83,6 +89,8 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  * /api/posts:
  *   post:
  *     summary: Create a new post
+ *     tags:
+ *     - Posts
  *     requestBody:
  *       required: true
  *       content:
@@ -99,6 +107,8 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  * /api/posts/{postId}:
  *   delete:
  *     summary: Delete a post
+ *     tags:
+ *     - Posts
  *     parameters:
  *       - in: path
  *         name: postId
