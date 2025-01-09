@@ -44,6 +44,15 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  *         description: List of latest posts
  */
 
+postRouter.get('/', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { limit, before, after } = req.query as Record<string, string>
+
+  const posts = await service.getLatestPosts(userId, { limit: Number(limit), before, after })
+
+  return res.status(HttpStatus.OK).json(posts)
+})
+
 /**
  * @swagger
  * /api/posts/{postId}:
@@ -63,6 +72,18 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  *       404:
  *         description: Not found
  */
+
+postRouter.get('/:postId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { postId } = req.params
+
+  try {
+    const post = await service.getPost(userId, postId)
+    return res.status(HttpStatus.OK).json(post)
+  } catch (error) {
+    return res.status(HttpStatus.NOT_FOUND).send('Not found')
+  }
+})
 
 /**
  * @swagger
@@ -84,6 +105,18 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  *         description: Not found
  */
 
+postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { userId: authorId } = req.params
+
+  try {
+    const posts = await service.getPostsByAuthor(userId, authorId)
+    return res.status(HttpStatus.OK).json(posts)
+  } catch (error) {
+    return res.status(HttpStatus.NOT_FOUND).send('Not found')
+  }
+})
+
 /**
  * @swagger
  * /api/posts:
@@ -102,6 +135,15 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  *         description: Post created successfully
  */
 
+postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const data = req.body
+
+  const post = await service.createPost(userId, data)
+
+  return res.status(HttpStatus.CREATED).json(post)
+})
+
 /**
  * @swagger
  * /api/posts/{postId}:
@@ -119,48 +161,6 @@ const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new
  *       200:
  *         description: Post deleted successfully
  */
-
-postRouter.get('/', async (req: Request, res: Response) => {
-  const { userId } = res.locals.context
-  const { limit, before, after } = req.query as Record<string, string>
-
-  const posts = await service.getLatestPosts(userId, { limit: Number(limit), before, after })
-
-  return res.status(HttpStatus.OK).json(posts)
-})
-
-postRouter.get('/:postId', async (req: Request, res: Response) => {
-  const { userId } = res.locals.context
-  const { postId } = req.params
-
-  try {
-    const post = await service.getPost(userId, postId)
-    return res.status(HttpStatus.OK).json(post)
-  } catch (error) {
-    return res.status(HttpStatus.NOT_FOUND).send('Not found')
-  }
-})
-
-postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
-  const { userId } = res.locals.context
-  const { userId: authorId } = req.params
-
-  try {
-    const posts = await service.getPostsByAuthor(userId, authorId)
-    return res.status(HttpStatus.OK).json(posts)
-  } catch (error) {
-    return res.status(HttpStatus.NOT_FOUND).send('Not found')
-  }
-})
-
-postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
-  const { userId } = res.locals.context
-  const data = req.body
-
-  const post = await service.createPost(userId, data)
-
-  return res.status(HttpStatus.CREATED).json(post)
-})
 
 postRouter.delete('/:postId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context

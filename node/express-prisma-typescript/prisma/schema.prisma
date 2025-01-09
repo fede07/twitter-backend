@@ -60,6 +60,10 @@ model Post {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Optional value
 
+  parent   Post?   @relation("CommentRelation", fields: [parentId], references: [id]) // One to many
+  parentId String? @db.Uuid // Optional value
+  comments Post[]  @relation("CommentRelation") // One to many
+
   author   User       @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
   Reaction Reaction[]
 }
