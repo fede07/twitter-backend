@@ -19,6 +19,55 @@ const service: ReactionService = new ReactionServiceImpl(
 
 /**
  * @swagger
+ * /api/reactions/{userId}:
+ *   get:
+ *     summary: Get reactions for a specific user
+ *     description: Retrieve all reactions made by a specific user, filtered by reaction type.
+ *     tags:
+ *       - Reactions
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: The ID of the user whose reactions are to be retrieved
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: type
+ *         required: true
+ *         description: The type of reaction to filter by (e.g., LIKE, RETWEET)
+ *         schema:
+ *           type: string
+ *           enum: [LIKE, RETWEET]
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the user's reactions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Reaction'
+ *       400:
+ *         description: Invalid reaction type
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+
+reactionRouter.get('/:userId', async (req: Request, res: Response) => {
+  const { userId } = req.params
+  const { type } = req.query
+  if (type !== 'LIKE' && type !== 'RETWEET') {
+    return res.status(HttpStatus.BAD_REQUEST).send('Invalid reaction type')
+  }
+  const reactions = await service.getReactionsByUserId(userId, type)
+  return res.status(HttpStatus.OK).json(reactions)
+})
+
+/**
+ * @swagger
  * /api/reactions/{post_id}:
  *   post:
  *     summary: Creates a reaction for a specific post

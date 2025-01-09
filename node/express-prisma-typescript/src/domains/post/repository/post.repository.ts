@@ -9,4 +9,5 @@ export interface PostRepository {
   getById: (postId: string) => Promise<PostDTO | null>
   getByAuthorId: (authorId: string) => Promise<PostDTO[]>
   getAuthorId: (postId: string) => Promise<string>
+  getCommentByAuthorId: (authorId: string) => Promise<PostDTO[]>
 }

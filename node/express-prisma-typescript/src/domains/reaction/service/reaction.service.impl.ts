@@ -23,6 +23,14 @@ export class ReactionServiceImpl implements ReactionService {
     return await this.reactionRepository.create(postId, userId, type)
   }
 
+  async getReactionsByUserId (userId: string, reactionType: ReactionType): Promise<Reaction[]> {
+    const user = await this.userRepository.getById(userId)
+    if (!user) {
+      throw new Error('User not found')
+    }
+    return await this.reactionRepository.getByUserId(userId, reactionType)
+  }
+
   async deleteReaction (postId: string, userId: string): Promise<void> {
     await this.reactionRepository.delete(postId, userId)
   }

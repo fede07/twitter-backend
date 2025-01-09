@@ -14,6 +14,15 @@ export class ReactionRepositoryImpl implements ReactionRepository {
     })
   }
 
+  async getByUserId (userId: string, reactionType: ReactionType): Promise<Reaction[]> {
+    return await this.db.reaction.findMany({
+      where: {
+        userId,
+        type: reactionType
+      }
+    })
+  }
+
   async delete (postId: string, userId: string): Promise<void> {
     await this.db.reaction.deleteMany({
       where: {

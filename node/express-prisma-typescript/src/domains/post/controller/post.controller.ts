@@ -119,6 +119,38 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
 
 /**
  * @swagger
+ * /api/posts/by_user/{userId}/comments:
+ *   get:
+ *     summary: Get comments by a specific user
+ *     tags:
+ *     - Posts
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of comments by user
+ *       404:
+ *         description: Not found
+ */
+
+postRouter.get('/by_user/:userId/comments', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { userId: authorId } = req.params
+
+  try {
+    const posts = await service.getCommentByAuthorId(userId, authorId)
+    return res.status(HttpStatus.OK).json(posts)
+  } catch (error) {
+    return res.status(HttpStatus.NOT_FOUND).send('Not found')
+  }
+})
+
+/**
+ * @swagger
  * /api/posts:
  *   post:
  *     summary: Create a new post
@@ -140,6 +172,40 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
   const data = req.body
 
   const post = await service.createPost(userId, data)
+
+  return res.status(HttpStatus.CREATED).json(post)
+})
+
+/**
+ * @swagger
+ * /api/posts/{postId}:
+ *   post:
+ *     summary: Create a comment on a post
+ *     tags:
+ *     - Posts
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreatePostInputDTO'
+ *     responses:
+ *       201:
+ *         description: Comment created successfully
+ */
+
+postRouter.post('/:postId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { postId } = req.params
+  const data = req.body
+
+  const post = await service.createComment(userId, postId, data)
 
   return res.status(HttpStatus.CREATED).json(post)
 })

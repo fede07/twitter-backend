@@ -56,6 +56,15 @@ export class PostServiceImpl implements PostService {
     return await this.repository.getByAuthorId(authorId)
   }
 
+  async getCommentByAuthorId (userId: any, authorId: string): Promise<PostDTO[]> {
+    const isPrivate = await this.userRepository.isPrivate(authorId)
+    if (isPrivate) {
+      const isFollowing = await this.followerRepository.isFollowing(authorId, userId)
+      if (!isFollowing) throw new ForbiddenException()
+    }
+    return await this.repository.getCommentByAuthorId(authorId)
+  }
+
   async getAuthorId (postId: string): Promise<string> {
     return await this.repository.getAuthorId(postId)
   }
