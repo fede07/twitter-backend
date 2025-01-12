@@ -1,6 +1,5 @@
 import { FollowerRepository } from '@domains/follower/repository/follower.repository'
 import { PrismaClient } from '@prisma/client'
-import { FollowerDTO } from '@domains/follower/dto'
 
 export class FollowerRepositoryImpl implements FollowerRepository {
   constructor (private readonly db: PrismaClient) {
@@ -12,7 +11,7 @@ export class FollowerRepositoryImpl implements FollowerRepository {
         followedId,
         followerId
       }
-    }).then(follower => new FollowerDTO(follower))
+    })
   }
 
   async unfollowUser (followedId: string, followerId: string): Promise<void> {

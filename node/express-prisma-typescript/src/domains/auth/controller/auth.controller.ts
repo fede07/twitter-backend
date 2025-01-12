@@ -14,32 +14,6 @@ export const authRouter = Router()
 // Use dependency injection
 const service: AuthService = new AuthServiceImpl(new UserRepositoryImpl(db))
 
-/**
- * @swagger
- * /signup:
- *   post:
- *     summary: Register a new user
- *     description: Creates a new user account and returns a token.
- *     tags:
- *       - Authentication
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/SignupInputDTO'
- *     responses:
- *       201:
- *         description: User successfully registered.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/TokenDTO'
- *       400:
- *         description: Validation error.
- *       409:
- *         description: User already exists.
- */
 authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, res: Response) => {
   const data = req.body
 
@@ -48,34 +22,6 @@ authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, 
   return res.status(HttpStatus.CREATED).json(token)
 })
 
-/**
- * @swagger
- * /login:
- *   post:
- *     summary: Login an existing user
- *     description: Authenticates a user and returns a token.
- *     tags:
- *       - Authentication
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/LoginInputDTO'
- *     responses:
- *       200:
- *         description: User successfully logged in.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/TokenDTO'
- *       400:
- *         description: Validation error.
- *       401:
- *         description: Unauthorized. Incorrect credentials.
- *       404:
- *         description: User not found.
- */
 authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, res: Response) => {
   const data = req.body
 
