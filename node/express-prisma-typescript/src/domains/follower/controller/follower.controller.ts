@@ -31,7 +31,3 @@ followerRouter.post('/unfollow/:user_id', async (req: Request, res: Response) =>
     message: 'User unfollowed successfully'
   })
 })
-
-followerRouter.get('/health', async (req: Request, res: Response) => {
-  return res.status(HttpStatus.OK).send('OK')
-})

@@ -20,6 +20,7 @@ export class PostServiceImpl implements PostService {
   }
 
   async createComment (userId: string, parentId: string, data: CreatePostInputDTO): Promise<PostDTO> {
+    if (!parentId) throw new NotFoundException('parentId')
     const post = await this.repository.getById(parentId)
     if (!post) throw new NotFoundException('post')
     await validate(data)

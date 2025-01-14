@@ -3,6 +3,7 @@ import { OffsetPagination } from 'types'
 import { UserDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
+import { generatePresignedUrl } from '@utils/s3-utils'
 
 export class UserServiceImpl implements UserService {
   constructor (private readonly repository: UserRepository) {}
@@ -26,5 +27,10 @@ export class UserServiceImpl implements UserService {
     const user = await this.repository.getById(userId)
     if (!user) throw new NotFoundException('user')
     return await this.repository.isPrivate(userId)
+  }
+
+  async getProfilePictureUploadUrl (userId: string): Promise<string> {
+    const key = `users/${userId}/profileImage.jpg`
+    return await generatePresignedUrl(key, 'image/jpeg')
   }
 }

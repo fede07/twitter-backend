@@ -1,18 +1,23 @@
 import { FollowerService } from '@domains/follower/service/follower.service'
 import { FollowerRepository } from '@domains/follower/repository/follower.repository'
+import { ConflictException, ForbiddenException } from '@utils';
 
 export class FollowerServiceImpl implements FollowerService {
-  constructor (private readonly followerRepository: FollowerRepository) {
-  }
+  constructor (private readonly followerRepository: FollowerRepository) {}
 
   async followUser (followedId: string, followerId: string): Promise<void> {
-    if (followedId === followerId) throw new Error('CANNOT_FOLLOW_YOURSELF')
-    if (await this.isFollowing(followedId, followerId)) throw new Error('ALREADY_FOLLOWING')
+    if (followedId === followerId) {
+      throw new ForbiddenException()
+    }
+    if (await this.isFollowing(followedId, followerId)) throw new ConflictException('ALREADY_FOLLOWING')
     await this.followerRepository.followUser(followedId, followerId)
   }
 
   async unfollowUser (followedId: string, followerId: string): Promise<void> {
-    if (!await this.isFollowing(followedId, followerId)) throw new Error('NOT_FOLLOWING')
+    if (followedId === followerId) {
+      throw new ForbiddenException()
+    }
+    if (!(await this.isFollowing(followedId, followerId))) throw new ConflictException('NOT_FOLLOWING')
     await this.followerRepository.unfollowUser(followedId, followerId)
   }
 

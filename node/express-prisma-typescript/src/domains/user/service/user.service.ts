@@ -6,4 +6,5 @@ export interface UserService {
   getUser: (userId: any) => Promise<UserDTO>
   getUserRecommendations: (userId: any, options: OffsetPagination) => Promise<UserDTO[]>
   isPrivate: (userId: string) => Promise<boolean>
+  getProfilePictureUploadUrl: (userId: string) => Promise<string>
 }

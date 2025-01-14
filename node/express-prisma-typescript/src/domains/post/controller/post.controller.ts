@@ -16,34 +16,6 @@ export const postRouter = Router()
 // Use dependency injection
 const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
 
-/**
- * @swagger
- * /api/posts:
- *   get:
- *     summary: Get latest posts
- *     tags:
- *       - Posts
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *         required: false
- *       - in: query
- *         name: before
- *         schema:
- *           type: string
- *         required: false
- *       - in: query
- *         name: after
- *         schema:
- *           type: string
- *         required: false
- *     responses:
- *       200:
- *         description: List of latest posts
- */
-
 postRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { limit, before, after } = req.query as Record<string, string>
@@ -52,26 +24,6 @@ postRouter.get('/', async (req: Request, res: Response) => {
 
   return res.status(HttpStatus.OK).json(posts)
 })
-
-/**
- * @swagger
- * /api/posts/{postId}:
- *   get:
- *     summary: Get post by ID
- *     tags:
- *     - Posts
- *     parameters:
- *       - in: path
- *         name: postId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Post details
- *       404:
- *         description: Not found
- */
 
 postRouter.get('/:postId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
@@ -85,26 +37,6 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
   }
 })
 
-/**
- * @swagger
- * /api/posts/by_user/{userId}:
- *   get:
- *     summary: Get posts by user
- *     tags:
- *     - Posts
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: List of posts by user
- *       404:
- *         description: Not found
- */
-
 postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { userId: authorId } = req.params
@@ -117,27 +49,7 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
   }
 })
 
-/**
- * @swagger
- * /api/posts/by_user/{userId}/comments:
- *   get:
- *     summary: Get comments by a specific user
- *     tags:
- *     - Posts
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: List of comments by user
- *       404:
- *         description: Not found
- */
-
-postRouter.get('/by_user/:userId/comments', async (req: Request, res: Response) => {
+postRouter.get('/comments/by_user/:userId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { userId: authorId } = req.params
 
@@ -149,24 +61,6 @@ postRouter.get('/by_user/:userId/comments', async (req: Request, res: Response) 
   }
 })
 
-/**
- * @swagger
- * /api/posts:
- *   post:
- *     summary: Create a new post
- *     tags:
- *     - Posts
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreatePostInputDTO'
- *     responses:
- *       201:
- *         description: Post created successfully
- */
-
 postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const data = req.body
@@ -176,31 +70,7 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
   return res.status(HttpStatus.CREATED).json(post)
 })
 
-/**
- * @swagger
- * /api/posts/{postId}:
- *   post:
- *     summary: Create a comment on a post
- *     tags:
- *     - Posts
- *     parameters:
- *       - in: path
- *         name: postId
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreatePostInputDTO'
- *     responses:
- *       201:
- *         description: Comment created successfully
- */
-
-postRouter.post('/:postId', async (req: Request, res: Response) => {
+postRouter.post('/comment/:postId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { postId } = req.params
   const data = req.body
@@ -209,24 +79,6 @@ postRouter.post('/:postId', async (req: Request, res: Response) => {
 
   return res.status(HttpStatus.CREATED).json(post)
 })
-
-/**
- * @swagger
- * /api/posts/{postId}:
- *   delete:
- *     summary: Delete a post
- *     tags:
- *     - Posts
- *     parameters:
- *       - in: path
- *         name: postId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Post deleted successfully
- */
 
 postRouter.delete('/:postId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context

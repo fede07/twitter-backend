@@ -23,12 +23,35 @@ export class ReactionRepositoryImpl implements ReactionRepository {
     })
   }
 
-  async delete (postId: string, userId: string): Promise<void> {
+  async delete (postId: string, userId: string, type: ReactionType): Promise<void> {
     await this.db.reaction.deleteMany({
       where: {
         postId,
-        userId
+        userId,
+        type
       }
     })
+  }
+
+  async isLiked (postId: string, userId: string): Promise<boolean> {
+    const reaction = await this.db.reaction.findFirst({
+      where: {
+        postId,
+        userId,
+        type: ReactionType.LIKE
+      }
+    })
+    return reaction !== null
+  }
+
+  async isRetweeted (postId: string, userId: string): Promise<boolean> {
+    const reaction = await this.db.reaction.findFirst({
+      where: {
+        postId,
+        userId,
+        type: ReactionType.RETWEET
+      }
+    })
+    return reaction !== null
   }
 }

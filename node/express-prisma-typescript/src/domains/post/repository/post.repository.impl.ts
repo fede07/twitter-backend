@@ -57,9 +57,14 @@ export class PostRepositoryImpl implements PostRepository {
   }
 
   async delete (postId: string): Promise<void> {
-    await this.db.post.delete({
+    await this.db.post.update({
       where: {
         id: postId
+      },
+      data: {
+        content: '[DELETED]',
+        images: [],
+        deletedAt: new Date()
       }
     })
   }

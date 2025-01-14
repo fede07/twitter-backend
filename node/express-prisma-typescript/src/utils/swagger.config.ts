@@ -22,9 +22,33 @@ const options: OAS3Options = {
       {
         name: 'Follow',
         description: 'Follow endpoints'
+      },
+      {
+        name: 'Health',
+        description: 'Health endpoints'
+      },
+      {
+        name: 'Post',
+        description: 'Post endpoints'
+      },
+      {
+        name: 'Reaction',
+        description: 'Reaction endpoints'
+      },
+      {
+        name: 'User',
+        description: 'User endpoints'
       }
     ],
     components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          in: 'header'
+        }
+      },
       schemas: {
         SignupInputDTO: {
           type: 'object',
@@ -32,6 +56,11 @@ const options: OAS3Options = {
             email: { type: 'string', format: 'email' },
             username: { type: 'string' },
             password: { type: 'string', format: 'password' }
+          },
+          example: {
+            email: 'johndoe@example.com',
+            username: 'johndoe',
+            password: 'strongPass123!'
           },
           required: ['email', 'username', 'password']
         },
@@ -83,6 +112,11 @@ const options: OAS3Options = {
         }
       }
     },
+    security: [
+      {
+        bearerAuth: []
+      }
+    ],
     paths: {
       // AUTH
       '/api/auth/signup': {
@@ -258,11 +292,16 @@ const options: OAS3Options = {
         }
       },
       // FOLLOW
-      '/api/follow/{user_id}': {
+      '/api/follower/follow/{user_id}': {
         post: {
           summary: 'Follow a user',
           description: 'Allows the authenticated user to follow another user.',
           tags: ['Follow'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
           parameters: [
             {
               name: 'user_id',
@@ -270,7 +309,9 @@ const options: OAS3Options = {
               required: true,
               description: 'The ID of the user to be followed.',
               schema: {
-                type: 'string'
+                type: 'string',
+                format: 'uuid',
+                example: '06ea1868-7286-42c2-a7c3-bfa7d051495f'
               }
             }
           ],
@@ -282,23 +323,1202 @@ const options: OAS3Options = {
                   schema: {
                     type: 'object',
                     properties: {
-                      followedUserId: {
-                        type: 'string',
-                        description: 'The ID of the user that was followed.'
+                      message: {
+                        type: 'string'
                       }
                     }
                   },
                   example: {
-                    followedUserId: '12345'
+                    message: 'User followed successfully.'
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            403: {
+              description: 'Forbidden. User cannot follow themself.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Forbidden. You are not allowed to perform this action.',
+                    code: 403
+                  }
+                }
+              }
+            },
+            409: {
+              description: 'Already Following',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Conflict',
+                    code: 409,
+                    errors: {
+                      error_code: 'ALREADY_FOLLOWING'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/follower/unfollow/{user_id}': {
+        post: {
+          summary: 'Unfollow a user',
+          description: 'Allows the authenticated user to unfollow another user.',
+          tags: ['Follow'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              name: 'user_id',
+              in: 'path',
+              required: true,
+              description: 'The ID of the user to be unfollowed.',
+              schema: {
+                type: 'string',
+                format: 'uuid'
+              }
+            }
+          ],
+          responses: {
+            204: {
+              description: 'User unfollowed successfully.',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      message: {
+                        type: 'string'
+                      }
+                    },
+                    example: {
+                      message: 'User unfollowed successfully.'
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            403: {
+              description: 'Forbidden. User cannot unfollow themself.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Forbidden. You are not allowed to perform this action.',
+                    code: 403
+                  }
+                }
+              }
+            },
+            409: {
+              description: 'Not Following',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Conflict',
+                    code: 409,
+                    errors: {
+                      error_code: 'NOT_FOLLOWING'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      // HEALTH
+      '/api/health': {
+        get: {
+          summary: 'Health check',
+          description: 'Checks if the server is running.',
+          tags: ['Health'],
+          responses: {
+            200: {
+              description: 'Server is running.'
+            },
+            500: {
+              description: 'Server is not running.'
+            }
+          }
+        }
+      },
+      // POST
+      '/api/post/': {
+        get: {
+          summary: 'Get all posts',
+          description: 'Get all posts.',
+          tags: ['Post'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          responses: {
+            200: {
+              description: 'Get all posts successfully.',
+              content: {
+                'application/json': {
+                  schema: {}
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        post: {
+          summary: 'Create a new post',
+          description: 'Create a new post.',
+          tags: ['Post'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/CreatePostInputDTO'
+                }
+              }
+            }
+          },
+          responses: {
+            201: {
+              description: 'Post created successfully.',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/PostDTO'
+                  },
+                  example: {
+                    id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    content: 'Hello World!',
+                    images: [],
+                    createdAt: '2021-03-22T15:25:43.000Z',
+                    parentId: null
                   }
                 }
               }
             },
             400: {
-              description: 'Validation error.'
+              description: 'Validation Error',
+              content: {
+                'application/json': {
+                  example: {
+                    validationError: {
+                      summary: 'Validation Error',
+                      value: {
+                        message: 'Validation error',
+                        code: 400,
+                        errors: {
+                          property: 'content',
+                          children: [],
+                          constraints: {
+                            maxLength: 'content must be shorter than or equal to 240 characters',
+                            isNotEmpty: 'content should not be empty',
+                            isString: 'content must be a string'
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             },
             401: {
-              description: 'Unauthorized. Invalid token or session expired.'
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/post/{post_id}': {
+        get: {
+          summary: 'Get a post',
+          description: 'Get a post.',
+          tags: ['Post'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              name: 'post_id',
+              in: 'path',
+              required: true,
+              description: 'The ID of the post to be retrieved.',
+              schema: {
+                type: 'string'
+              },
+              example: 'e8bde95c-0f72-412c-ab7e-af364acfda2c'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'Get a post successfully.',
+              content: {
+                'application/json': {
+                  example: {
+                    id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    content: 'Hello World!',
+                    images: [],
+                    createdAt: '2021-03-22T15:25:43.000Z',
+                    parentId: null
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'Post not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found'
+                  }
+                }
+              }
+            }
+          }
+        },
+        delete: {
+          summary: 'Delete a post',
+          description: 'Delete a post.',
+          tags: ['Post'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              name: 'post_id',
+              in: 'path',
+              required: true,
+              description: 'The ID of the post to be deleted.',
+              schema: {
+                type: 'string'
+              },
+              example: 'e8bde95c-0f72-412c-ab7e-af364acfda2c'
+            }
+          ],
+          responses: {
+            204: {
+              description: 'Post deleted successfully.',
+              content: {
+                'application/json': {
+                  example: 'Deleted post c7d2efaf-ec6a-4214-a7fb-a6c4fdba5901'
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'Post not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/post/by_user/{userId}': {
+        get: {
+          summary: 'Get posts by user',
+          tags: ['Post'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              in: 'path',
+              name: 'userId',
+              required: true,
+              schema: {},
+              example: '5beaa857-6083-440f-880d-6338fc10e608'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'List of posts by user',
+              content: {
+                'application/json': {
+                  example: [
+                    {
+                      id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'Hello World!',
+                      images: [],
+                      createdAt: '2021-03-22T15:25:43.000Z',
+                      parentId: null
+                    },
+                    {
+                      id: '1e0238cb-ff48-4128-9406-a52d83a06679',
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'This is a test post!',
+                      images: [],
+                      createdAt: '2021-03-22T15:27:34.000Z',
+                      parentId: null
+                    }
+                  ]
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'User not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/post/comment/{post_id}': {
+        post: {
+          summary: 'Create a comment on a post',
+          description: 'Create a comment on a post',
+          tags: ['Post'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              in: 'path',
+              name: 'post_id',
+              required: true,
+              schema: {},
+              example: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5'
+            }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/CreatePostInputDTO'
+                }
+              }
+            }
+          },
+          responses: {
+            201: {
+              description: 'Comment created successfully.',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/PostDTO'
+                  },
+                  example: {
+                    id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    content: 'Hello World!',
+                    images: [],
+                    createdAt: '2021-03-22T15:25:43.000Z',
+                    parentId: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5'
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Validation Error',
+              content: {
+                'application/json': {
+                  example: {
+                    validationError: {
+                      summary: 'Validation Error',
+                      value: {
+                        message: 'Validation error',
+                        code: 400,
+                        errors: {
+                          property: 'content',
+                          children: [],
+                          constraints: {
+                            maxLength: 'content must be shorter than or equal to 240 characters',
+                            isNotEmpty: 'content should not be empty',
+                            isString: 'content must be a string'
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'Post not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found. Couldn\'t find post'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/post/comments/by_user/{userId}': {
+        get: {
+          summary: 'Get comments by user',
+          tags: ['Post'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              in: 'path',
+              name: 'userId',
+              required: true,
+              schema: {},
+              example: '5beaa857-6083-440f-880d-6338fc10e608'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'List of comments by user',
+              content: {
+                'application/json': {
+                  example: [
+                    {
+                      id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'Hello World!',
+                      images: [],
+                      createdAt: '2021-03-22T15:25:43.000Z',
+                      parentId: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5'
+                    },
+                    {
+                      id: '1e0238cb-ff48-4128-9406-a52d83a06679',
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'This is a test post!',
+                      images: [],
+                      createdAt: '2021-03-22T15:27:34.000Z',
+                      parentId: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5'
+                    }
+                  ]
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'User not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      // REACTION
+      '/api/reaction/likes/{userId}': {
+        get: {
+          summary: 'Get likes by user',
+          tags: ['Reaction'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              in: 'path',
+              name: 'userId',
+              required: true,
+              schema: {},
+              example: '5beaa857-6083-440f-880d-6338fc10e608'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'List of likes by user',
+              content: {
+                'application/json': {
+                  example: [
+                    {
+                      id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      userId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      postId: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5',
+                      type: 'LIKE',
+                      createdAt: '2021-03-22T15:25:43.000Z'
+                    },
+                    {
+                      id: '1e0238cb-ff48-4128-9406-a52d83a06679',
+                      userId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      postId: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5',
+                      type: 'LIKE',
+                      createdAt: '2021-03-22T15:27:34.000Z'
+                    }
+                  ]
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'User not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found. Couldn\'t find user'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/reaction/retweets/{userId}': {
+        get: {
+          summary: 'Get retweets by user',
+          tags: ['Reaction'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              in: 'path',
+              name: 'userId',
+              required: true,
+              schema: {},
+              example: '5beaa857-6083-440f-880d-6338fc10e608'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'List of retweets by user',
+              content: {
+                'application/json': {
+                  example: [
+                    {
+                      id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      userId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      postId: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5',
+                      type: 'RETWEET',
+                      createdAt: '2021-03-22T15:25:43.000Z'
+                    }
+                  ]
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'User not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found. Couldn\'t find user'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/reaction/{post_id}': {
+        post: {
+          summary: 'Create a reaction on a post',
+          description: 'Create a reaction on a post',
+          tags: ['Reaction'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              in: 'path',
+              name: 'post_id',
+              required: true,
+              schema: {},
+              example: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5'
+            }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/CreateReactionInputDTO'
+                }
+              }
+            }
+          },
+          responses: {
+            201: {
+              description: 'Reaction created successfully.',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/ReactionDTO'
+                  },
+                  example: {
+                    post_id: '06ea1868-7286-42c2-a7c3-bfa7d051495f'
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Validation Error',
+              content: {
+                'application/json': {
+                  example: {
+                    validationError: {
+                      summary: 'Validation Error',
+                      value: 'Invalid reaction type'
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'Post not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found. Couldn\'t find post'
+                  }
+                }
+              }
+            },
+            409: {
+              description: 'Reaction already exists.',
+              content: {
+                'application/json': {
+                  examples: [
+                    {
+                      summary: 'Like already exists',
+                      value: {
+                        message: 'CONFLICT',
+                        code: 409,
+                        errors: {
+                          error_code: 'ALREADY_RETWEETED'
+                        }
+                      }
+                    },
+                    {
+                      summary: 'Like already exists',
+                      value: {
+                        message: 'CONFLICT',
+                        code: 409,
+                        errors: {
+                          error_code: 'ALREADY_LIKED'
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        delete: {
+          summary: 'Delete a reaction on a post',
+          description: 'Delete a reaction on a post',
+          tags: ['Reaction'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              in: 'path',
+              name: 'post_id',
+              required: true,
+              schema: {},
+              example: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5'
+            }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'reactionType'
+                }
+              }
+            }
+          },
+          responses: {
+            204: {
+              description: 'Reaction deleted successfully.',
+              content: {
+                'application/json': {
+                  example: 'Deleted reaction'
+                }
+              }
+            },
+            400: {
+              description: 'Validation Error',
+              content: {
+                'application/json': {
+                  example: {
+                    validationError: {
+                      summary: 'Validation Error',
+                      value: 'Invalid reaction type'
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'Post not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found. Couldn\'t find post'
+                  }
+                }
+              }
+            },
+            409: {
+              description: 'Reaction does not exists.',
+              content: {
+                'application/json': {
+                  examples: [
+                    {
+                      summary: 'Retweet does not exists',
+                      value: {
+                        message: 'Conflict',
+                        code: 409,
+                        errors: {
+                          error_code: 'NOT_RETWEETED'
+                        }
+                      }
+                    },
+                    {
+                      summary: 'Like does not exists',
+                      value: {
+                        message: 'Conflict',
+                        code: 409,
+                        errors: {
+                          error_code: 'NOT_LIKED'
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      // USER
+      '/api/user/': {
+        get: {
+          summary: 'Get recommended users',
+          tags: ['User'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              in: 'query',
+              name: 'limit',
+              required: false,
+              schema: {
+                type: 'integer'
+              },
+              example: 10
+            },
+            {
+              in: 'query',
+              name: 'skip',
+              required: false,
+              schema: {
+                type: 'integer'
+              },
+              example: 0
+            }
+          ],
+          responses: {
+            200: {
+              description: 'List of recommended users',
+              content: {
+                'application/json': {
+                  example: [
+                    {
+                      id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      username: 'johndoe',
+                      email: 'johndoe@example.com',
+                      firstName: 'John',
+                      lastName: 'Doe',
+                      bio: 'I am a developer',
+                      profilePicture: 'https://i.pravatar.cc/150?img=7',
+                      createdAt: '2021-03-22T15:25:43.000Z',
+                      updatedAt: '2021-03-22T15:25:43.000Z'
+                    }
+                  ]
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'User not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found. Couldn\'t find user'
+                  }
+                }
+              }
+            }
+          }
+        },
+        delete: {
+          summary: 'Delete user',
+          description: 'WARNING: This endpoint **permanently deletes** the logged-in user from the database. \n' +
+            '      Please use it with caution, as this action is irreversible.',
+          tags: ['User'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          responses: {
+            204: {
+              description: 'User deleted successfully.',
+              content: {
+                'application/json': {
+                  example: 'Deleted user'
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'User not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found. Couldn\'t find user'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/user/me': {
+        get: {
+          summary: 'Get current user',
+          tags: ['User'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          responses: {
+            200: {
+              description: 'Current user',
+              content: {
+                'application/json': {
+                  example: {
+                    id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    name: 'john doe',
+                    createdAt: '2021-03-22T15:25:43.000Z'
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/user/:userId': {
+        get: {
+          summary: 'Get user by id',
+          tags: ['User'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              in: 'path',
+              name: 'userId',
+              required: true,
+              schema: {},
+              example: '5beaa857-6083-440f-880d-6338fc10e608'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'User by id',
+              content: {
+                'application/json': {
+                  example: {
+                    id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    name: 'johndoe',
+                    createdAt: '2021-03-22T15:25:43.000Z'
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'User not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found. Couldn\'t find user'
+                  }
+                }
+              }
             }
           }
         }
@@ -309,7 +1529,7 @@ const options: OAS3Options = {
 }
 
 const swaggerOptions = {
-  explorer: true
+  explorer: false
 }
 
 export { options, swaggerOptions }

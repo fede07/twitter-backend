@@ -13,7 +13,8 @@
     "db:generate": "prisma generate"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.723.0",
+    "@aws-sdk/client-s3": "^3.726.1",
+    "@aws-sdk/s3-request-presigner": "^3.726.1",
     "@prisma/client": "^6.2.1",
     "aws-sdk": "^2.1692.0",
     "bcrypt": "^5.1.0",
@@ -35,6 +36,7 @@
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "@types/aws-sdk": "^2.7.4",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.3",
     "@types/cors": "^2.8.13",
