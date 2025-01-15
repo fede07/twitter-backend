@@ -70,4 +70,15 @@ export class UserRepositoryImpl implements UserRepository {
     })
     return user?.isPrivate ?? false
   }
+
+  async updateProfileImage (userId: string, imageUrl: string): Promise<UserDTO> {
+    return await this.db.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        profileImage: imageUrl
+      }
+    })
+  }
 }

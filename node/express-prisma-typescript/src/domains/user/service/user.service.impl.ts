@@ -1,9 +1,10 @@
-import { NotFoundException } from '@utils/errors'
+import { NotFoundException } from '@utils/errors';
 import { OffsetPagination } from 'types'
 import { UserDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
-import { generatePresignedUrl } from '@utils/s3-utils'
+import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils'
+import { v4 as uuidv4 } from 'uuid'
 
 export class UserServiceImpl implements UserService {
   constructor (private readonly repository: UserRepository) {}
@@ -29,8 +30,16 @@ export class UserServiceImpl implements UserService {
     return await this.repository.isPrivate(userId)
   }
 
-  async getProfilePictureUploadUrl (userId: string): Promise<string> {
-    const key = `users/${userId}/profileImage.jpg`
-    return await generatePresignedUrl(key, 'image/jpeg')
+  async generateProfileImageUrl (userId: string): Promise<string> {
+    const uuid = uuidv4();
+    const key = `users/${userId}/${uuid}.jpg`;
+
+    const uploadUrl = await generatePresignedUrl(key, 'image/jpeg');
+
+    const fileUrl = getPublicUrl(key);
+
+    await this.repository.updateProfileImage(userId, fileUrl);
+
+    return uploadUrl;
   }
 }

@@ -2,6 +2,7 @@ import { Express } from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import { options, swaggerOptions } from './swagger.config'
+import { Constants, NodeEnv } from '@utils/constants'
 
 const setupSwagger = (app: Express): void => {
   try {
@@ -9,7 +10,7 @@ const setupSwagger = (app: Express): void => {
     const swaggerSpec = swaggerJsdoc(options)
 
     // Restrict access to Swagger docs in production
-    if (process.env.NODE_ENV !== 'production') {
+    if (Constants.NODE_ENV === NodeEnv.DEV) {
       app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions))
       console.log('Swagger docs available at /api-docs')
     } else {

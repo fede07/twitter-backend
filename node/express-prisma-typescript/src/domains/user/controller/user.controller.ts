@@ -45,3 +45,16 @@ userRouter.delete('/', async (req: Request, res: Response) => {
 
   return res.status(HttpStatus.OK)
 })
+
+userRouter.post('/profile-image', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context;
+
+  try {
+    const uploadUrl = await service.generateProfileImageUrl(userId);
+
+    return res.status(HttpStatus.OK).json({ uploadUrl });
+  } catch (error) {
+    console.error('Error generating profile image upload URL:', error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error');
+  }
+});
