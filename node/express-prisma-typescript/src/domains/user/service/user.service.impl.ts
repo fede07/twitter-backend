@@ -1,6 +1,6 @@
 import { NotFoundException } from '@utils/errors';
 import { OffsetPagination } from 'types'
-import { UserDTO } from '../dto'
+import { UserDTO, UserViewDTO } from '../dto';
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
 import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils'
@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid'
 export class UserServiceImpl implements UserService {
   constructor (private readonly repository: UserRepository) {}
 
-  async getUser (userId: any): Promise<UserDTO> {
+  async getUser (userId: any): Promise<UserViewDTO> {
     const user = await this.repository.getById(userId)
     if (!user) throw new NotFoundException('user')
     return user

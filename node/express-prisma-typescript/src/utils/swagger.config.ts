@@ -329,6 +329,7 @@ const options: OAS3Options = {
                     }
                   },
                   example: {
+                    user: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
                     message: 'User followed successfully.'
                   }
                 }
@@ -394,7 +395,9 @@ const options: OAS3Options = {
               description: 'The ID of the user to be unfollowed.',
               schema: {
                 type: 'string',
-                format: 'uuid'
+                format: 'uuid',
+                example: '06ea1868-7286-42c2-a7c3-bfa7d051495f'
+
               }
             }
           ],
@@ -411,6 +414,7 @@ const options: OAS3Options = {
                       }
                     },
                     example: {
+                      user: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
                       message: 'User unfollowed successfully.'
                     }
                   }
@@ -491,7 +495,25 @@ const options: OAS3Options = {
               description: 'Get all posts successfully.',
               content: {
                 'application/json': {
-                  schema: {}
+                  schema: {},
+                  example: [
+                    {
+                      id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'Hello World!',
+                      images: [],
+                      createdAt: '2021-03-22T15:25:43.000Z',
+                      parentId: null
+                    },
+                    {
+                      id: '1e0238cb-ff48-4128-9406-a52d83a06679',
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'This is a test post!',
+                      images: [],
+                      createdAt: '2021-03-22T15:27:34.000Z',
+                      parentId: null
+                    }
+                  ]
                 }
               }
             },

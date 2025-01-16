@@ -29,11 +29,11 @@ export class UserViewDTO {
     this.id = user.id
     this.name = user.name
     this.username = user.username
-    this.profilePicture = user.profilePicture
+    this.profileImage = user.profileImage
   }
 
   id: string
-  name: string
+  name: string | null
   username: string
-  profilePicture: string | null
+  profileImage: string | null
 }

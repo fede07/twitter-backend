@@ -3,7 +3,8 @@ import { PrismaClient } from '@prisma/client'
 import { CursorPagination } from '@types'
 
 import { PostRepository } from '.'
-import { CreatePostInputDTO, PostDTO } from '../dto'
+import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto';
+import * as console from 'node:console';
 
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
@@ -109,5 +110,55 @@ export class PostRepositoryImpl implements PostRepository {
       }
     })
     return posts.map(post => new PostDTO(post))
+  }
+
+  async getCommentsByPostId (postId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
+    const comments = await this.db.post.findMany({
+      where: {
+        parentId: postId
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            profileImage: true
+          }
+        },
+        Reaction: true,
+        comments: true
+      },
+      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+    })
+
+    console.log('Comments: ', comments)
+
+    const extendedComments = comments.map(comment => {
+      const qtyLikes = comment.Reaction.filter(r => r.type === 'LIKE').length
+      const qtyRetweets = comment.Reaction.filter(r => r.type === 'RETWEET').length
+      const qtyComments = comment.comments?.length || 0
+      return new ExtendedPostDTO({
+        ...comment,
+        author: comment.author,
+        qtyLikes,
+        qtyRetweets,
+        qtyComments
+      })
+    })
+
+    console.log('Extended: ', extendedComments)
+
+    extendedComments.sort((a, b) => {
+      if (b.qtyLikes !== a.qtyLikes) {
+        return b.qtyLikes - a.qtyLikes
+      }
+      return b.qtyRetweets - a.qtyRetweets
+    })
+
+    console.log('Extended sorted:', extendedComments)
+    return extendedComments
   }
 }

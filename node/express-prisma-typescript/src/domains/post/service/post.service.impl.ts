@@ -1,4 +1,4 @@
-import { CreatePostInputDTO, PostDTO } from '../dto'
+import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto';
 import { PostRepository } from '../repository'
 import { PostService } from '.'
 import { validate } from 'class-validator'
@@ -6,6 +6,8 @@ import { ForbiddenException, NotFoundException } from '@utils'
 import { CursorPagination } from '@types'
 import { FollowerRepository } from '@domains/follower/repository/follower.repository'
 import { UserRepository } from '@domains/user/repository'
+import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils';
+import * as console from 'node:console';
 
 export class PostServiceImpl implements PostService {
   constructor (
@@ -17,6 +19,30 @@ export class PostServiceImpl implements PostService {
   async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     await validate(data)
     return await this.repository.create(userId, data)
+  }
+
+  async createPostPreSignedUrl (userId: string, data: CreatePostInputDTO): Promise<{ post: PostDTO; presignedUrls: { fileName: string; url: string }[] }> {
+    await validate(data)
+
+    const imageUrls: { fileName: string; presignedUrl: string; publicUrl: string }[] = [];
+
+    if (data.images && Array.isArray(data.images)){
+      for (const fileName of data.images) {
+        const timestamp = Date.now();
+        const key = `posts/${userId}/${timestamp}-${fileName}`;
+        const presignedUrl = await generatePresignedUrl(key, 'image/jpeg');
+        console.log('Key: ', key)
+        console.log('PreSignedURL: ', presignedUrl)
+        imageUrls.push({ fileName, presignedUrl, publicUrl: getPublicUrl(key) });
+      }
+    }
+    data.images = imageUrls.map(({ publicUrl }) => publicUrl)
+    const presignedUrls = imageUrls.map(({ fileName, presignedUrl }) => ({ fileName, url: presignedUrl }))
+
+    const post = await this.repository.create(userId, data)
+
+    return { post, presignedUrls}
+
   }
 
   async createComment (userId: string, parentId: string, data: CreatePostInputDTO): Promise<PostDTO> {
@@ -64,6 +90,11 @@ export class PostServiceImpl implements PostService {
       if (!isFollowing) throw new ForbiddenException()
     }
     return await this.repository.getCommentByAuthorId(authorId)
+  }
+
+  async getCommentsByPostId (postId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
+    console.log("service called")
+    return await this.repository.getCommentsByPostId(postId, options)
   }
 
   async getAuthorId (postId: string): Promise<string> {

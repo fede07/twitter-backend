@@ -65,7 +65,7 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
   const { userId } = res.locals.context
   const data = req.body
 
-  const post = await service.createPost(userId, data)
+  const post = await service.createPostPreSignedUrl(userId, data)
 
   return res.status(HttpStatus.CREATED).json(post)
 })

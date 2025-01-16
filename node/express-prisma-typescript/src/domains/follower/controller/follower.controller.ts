@@ -18,6 +18,7 @@ followerRouter.post('/follow/:user_id', async (req: Request, res: Response) => {
   const { user_id } = req.params
   await service.followUser(user_id, userId)
   return res.status(HttpStatus.CREATED).json({
+    user: user_id,
     message: 'User followed successfully'
   })
 })
@@ -28,6 +29,7 @@ followerRouter.post('/unfollow/:user_id', async (req: Request, res: Response) =>
   const { user_id } = req.params
   await service.unfollowUser(user_id, userId)
   return res.status(HttpStatus.OK).json({
+    user: user_id,
     message: 'User unfollowed successfully'
   })
 })
