@@ -59,6 +59,19 @@ export class UserRepositoryImpl implements UserRepository {
     return user ? new ExtendedUserDTO(user) : null
   }
 
+  async getUsersByUsername (username: string, options: OffsetPagination): Promise<UserViewDTO[]> {
+    const users = await this.db.user.findMany({
+      where: {
+        username: {
+          contains: username
+        }
+      },
+      take: options.limit ? options.limit : undefined,
+      skip: options.skip ? options.skip : undefined,
+    })
+    return users.map(user => new UserViewDTO(user))
+  }
+
   async isPrivate (userId: string): Promise<boolean> {
     const user = await this.db.user.findUnique({
       where: {

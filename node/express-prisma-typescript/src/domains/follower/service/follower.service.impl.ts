@@ -24,4 +24,11 @@ export class FollowerServiceImpl implements FollowerService {
   async isFollowing (followedId: string, followerId: string): Promise<boolean> {
     return await this.followerRepository.isFollowing(followedId, followerId)
   }
+
+  async areBothFollowingEachOther (followedId: string, followerId: string): Promise<boolean> {
+    const isFollowing = await this.isFollowing(followedId, followerId)
+    const areFollowingEachOther = await this.isFollowing(followerId, followedId)
+    return isFollowing && areFollowingEachOther
+  }
+
 }

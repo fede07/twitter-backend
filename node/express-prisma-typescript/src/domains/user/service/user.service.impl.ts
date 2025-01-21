@@ -42,4 +42,8 @@ export class UserServiceImpl implements UserService {
 
     return uploadUrl;
   }
+
+  async getUsersByUsername (username: string, pagination: {limit: number, skip: number}): Promise<UserViewDTO[]> {
+    return this.repository.getUsersByUsername(username, pagination)
+  }
 }

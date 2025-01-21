@@ -34,6 +34,9 @@ model User {
   followers Follow[]   @relation(name: "followers")
   isPrivate Boolean    @default(false) // Default value is false
   Reaction  Reaction[]
+
+  sentMessages     Message[] @relation(name: "SenderRelation")
+  receivedMessages Message[] @relation(name: "RecipientRelation")
 }
 
 model Follow {
@@ -85,4 +88,19 @@ model Reaction {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade) // One to many
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade) // One to many
+}
+
+model Message {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  text        String @db.Text
+  senderId    String @db.Uuid
+  recipientId String @db.Uuid
+  roomId      String @db.Text
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  sender    User @relation(name: "SenderRelation", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User @relation(name: "RecipientRelation", fields: [recipientId], references: [id], onDelete: Cascade)
 }

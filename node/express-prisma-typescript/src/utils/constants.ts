@@ -1,4 +1,6 @@
 // Runtime environments
+import * as process from 'node:process';
+
 export enum NodeEnv {
   DEV = 'development',
   PROD = 'production',
