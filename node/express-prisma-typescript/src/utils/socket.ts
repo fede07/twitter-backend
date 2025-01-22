@@ -29,7 +29,7 @@ const setupSocket = (httpServer: HttpServer) => {
       const payload = jwt.verify(extractedToken, Constants.TOKEN_SECRET) as { userId: string }
       socket.userId = payload.userId
       next()
-    } catch (error) {
+    } catch {
       next(new Error('INVALID_TOKEN'))
     }
 
@@ -68,6 +68,11 @@ const setupSocket = (httpServer: HttpServer) => {
       if (!socket.userId)
       {
         socket.emit('error', { message: 'You are not logged in' })
+        return
+      }
+
+      if(!socket.rooms.has(roomId)){
+        socket.emit('error', { message: 'You are not in this room' })
         return
       }
 

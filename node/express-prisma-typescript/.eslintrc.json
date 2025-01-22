@@ -12,6 +12,7 @@
   },
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
+    "semi": ["error", "never"],
     "@typescript-eslint/strict-boolean-expressions": [
       2,
       {"allowNullableString":  true,
