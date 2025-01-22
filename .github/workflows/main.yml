@@ -14,18 +14,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Debug folder structure
+        run: ls -R
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: Change working directory
-        run: cd node/express-prisma-typescript
-
       - name: Install dependencies
-        working-directory: ./express-prisma-typescript
+        working-directory: ./node/express-prisma-typescript
         run: yarn install
 
       - name: Run tests
-        working-directory: ./express-prisma-typescript
+        working-directory: ./node/express-prisma-typescript
         run: yarn test
