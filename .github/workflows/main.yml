@@ -3,7 +3,6 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main
       - tasks/11-unit-tests
   pull_request:
 
@@ -21,7 +20,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
       - name: Run tests
         run: npm test
