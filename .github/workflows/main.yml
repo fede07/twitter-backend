@@ -20,7 +20,7 @@ jobs:
           node-version: '18'
 
       - name: Change working directory
-      - run cd node/express-prisma-typescript
+      - run: cd node/express-prisma-typescript
 
       - name: Install dependencies
         working-directory: ./express-prisma-typescript
