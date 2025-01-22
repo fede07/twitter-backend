@@ -1,8 +1,7 @@
-// tests/follower.controller.test.ts
-import * as request from 'supertest' // Librería para realizar solicitudes HTTP en tests
+import request from 'supertest'
 import { Router } from 'express'
-import * as express from 'express'
-import * as HttpStatus from 'http-status'
+import express from 'express'
+import HttpStatus from 'http-status'
 import { App } from 'supertest/types'
 
 // Mock del servicio "FollowerService" original
@@ -28,7 +27,7 @@ const createFollowerRouter = () => {
         message: 'User followed successfully'
       })
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: error.message })
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({"error": (error as Error).message })
     }
   })
 
