@@ -26,6 +26,8 @@
     "typeRoots": ["./node_modules/@types", "./types"]
   },
   "lib": ["es2022"],
-  "include": ["src/**/*", "__tests__/**/*.ts"],
+  "include": ["src/**/*",
+    "src/__tests__/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }
