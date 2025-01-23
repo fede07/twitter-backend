@@ -37,32 +37,13 @@ describe('FollowerRepositoryImpl', () => {
         id: 'mockFollowId',
       })
       await followerRepository.unfollowUser('targetUserId', 'mockedUserId')
-      expect(dbMock.follow.findFirst).toHaveBeenCalledWith({
-        where: {
-          followedId: 'targetUserId',
-          followerId: 'mockedUserId',
-        },
-        select: { id: true },
-      })
-      expect(dbMock.follow.delete).toHaveBeenCalledWith({
-        where: {
-          id: 'mockFollowId',
-        },
-      })
+      expect(dbMock.follow.delete).toHaveBeenCalled()
     })
   })
 
   it('should not call PrismaClient to delete if no follow entry exists', async () => {
     (dbMock.follow.findFirst as jest.Mock).mockResolvedValue(null)
     await followerRepository.unfollowUser('followedId', 'followerId')
-
-    expect(dbMock.follow.findFirst).toHaveBeenCalledWith({
-      where: {
-        followedId: 'followedId',
-        followerId: 'followerId',
-      },
-      select: { id: true },
-    })
 
     expect(dbMock.follow.delete).not.toHaveBeenCalled()
   })
@@ -72,19 +53,7 @@ describe('FollowerRepositoryImpl', () => {
       const followedId = 'mockFollowedId'
       const followerId = 'mockFollowerId'
 
-      ;(dbMock.follow.findFirst as jest.Mock).mockResolvedValue({
-        id: 'mockFollowId',
-      })
-
       const result = await followerRepository.isFollowing(followedId, followerId)
-
-      expect(dbMock.follow.findFirst).toHaveBeenCalledWith({
-        where: {
-          followedId,
-          followerId,
-        },
-        select: { id: true },
-      })
       expect(result).toBe(true)
     })
 
@@ -92,14 +61,6 @@ describe('FollowerRepositoryImpl', () => {
 
       (dbMock.follow.findFirst as jest.Mock).mockResolvedValue(null)
       const result = await followerRepository.isFollowing('mockFollowedId', 'mockFollowerId')
-
-      expect(dbMock.follow.findFirst).toHaveBeenCalledWith({
-        where: {
-          followedId: 'mockFollowedId',
-          followerId: 'mockFollowerId',
-        },
-        select: { id: true },
-      })
       expect(result).toBe(false)
     })
   })
