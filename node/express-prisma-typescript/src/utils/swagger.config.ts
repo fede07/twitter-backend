@@ -402,7 +402,7 @@ const options: OAS3Options = {
             }
           ],
           responses: {
-            204: {
+            200: {
               description: 'User unfollowed successfully.',
               content: {
                 'application/json': {

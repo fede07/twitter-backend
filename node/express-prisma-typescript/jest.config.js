@@ -4,11 +4,26 @@ module.exports = {
   testEnvironment: 'node',
   transform: {
     '^.+\\.ts$': ['ts-jest', {
-      useESM: false,           // Configure `ts-jest` directly here
-      tsconfig: 'tsconfig.json', // Optional: Specify custom tsconfig file
-      isolatedModules: true,    // Optional: Enable isolated transformations for better performance
+      useESM: false,
+      tsconfig: 'tsconfig.json',
+      isolatedModules: true,
     }],
   },
-  collectCoverage: true,          // Collect test coverage
-  coverageDirectory: 'coverage',  // Directory for coverage reports
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@utils/(.*)$': '<rootDir>/src/utils/$1',
+    '^@utils$': '<rootDir>/src/utils',
+    '^@domains/(.*)$': '<rootDir>/src/domains/$1',
+    '^@domains$': '<rootDir>/src/domains',
+  },
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/__tests__/**',
+    '!src/**/*.test.ts',
+    '!src/server.ts',
+    '!src/types/*.ts',
+    '!src/utils/*.ts',
+  ],
 };
