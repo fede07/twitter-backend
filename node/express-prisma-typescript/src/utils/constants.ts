@@ -17,7 +17,7 @@ export enum LogLevel {
 // Environment variables, casting to correct type and setting default values for them.
 export class Constants {
   // Node runtime environment
-  static NODE_ENV: NodeEnv = (process.env.NODE_ENV as NodeEnv) || NodeEnv.DEV
+  static NODE_ENV: NodeEnv = (process.env.NODE_ENV as NodeEnv) || NodeEnv.PROD
 
   // Logging level
   static LOG_LEVEL: LogLevel = (process.env.LOG_LEVEL as LogLevel) || LogLevel.INFO
@@ -30,4 +30,6 @@ export class Constants {
 
   // Authentication secret
   static TOKEN_SECRET: string = process.env.TOKEN_SECRET ?? 'secret'
+
+  static DEPLOY_URL: string = process.env.DEPLOY_URL ?? ''
 }
