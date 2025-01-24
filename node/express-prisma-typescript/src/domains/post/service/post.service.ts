@@ -1,10 +1,8 @@
-import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto';
-import { CursorPagination } from '@types';
+import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
+import { CursorPagination } from '@types'
 
 export interface PostService {
-  createPost: (userId: string, body: CreatePostInputDTO) => Promise<PostDTO>
-  createPostPreSignedUrl: (userId: string, body: CreatePostInputDTO) => Promise<{ post: PostDTO; presignedUrls: { fileName: string; url: string }[] }>
-  createComment: (userId: string, parentId: string, body: CreatePostInputDTO) => Promise<PostDTO>
+  createPost: (userId: string, body: CreatePostInputDTO, parentId?: string) => Promise<{ post: PostDTO, presignedUrls: Array<{ fileName: string, url: string }> }>
   deletePost: (userId: string, postId: string) => Promise<void>
   getPost: (userId: string, postId: string) => Promise<PostDTO>
   getLatestPosts: (userId: string, options: { limit?: number, before?: string, after?: string }) => Promise<ExtendedPostDTO[]>

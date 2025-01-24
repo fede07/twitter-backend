@@ -32,7 +32,7 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
   try {
     const post = await service.getPost(userId, postId)
     return res.status(HttpStatus.OK).json(post)
-  } catch (error) {
+  } catch {
     return res.status(HttpStatus.NOT_FOUND).send('Not found')
   }
 })
@@ -44,7 +44,7 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
   try {
     const posts = await service.getPostsByAuthor(userId, authorId)
     return res.status(HttpStatus.OK).json(posts)
-  } catch (error) {
+  } catch {
     return res.status(HttpStatus.NOT_FOUND).send('Not found')
   }
 })
@@ -56,7 +56,7 @@ postRouter.get('/comments/by_user/:userId', async (req: Request, res: Response) 
   try {
     const posts = await service.getCommentByAuthorId(userId, authorId)
     return res.status(HttpStatus.OK).json(posts)
-  } catch (error) {
+  } catch {
     return res.status(HttpStatus.NOT_FOUND).send('Not found')
   }
 })
@@ -65,7 +65,7 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
   const { userId } = res.locals.context
   const data = req.body
 
-  const post = await service.createPostPreSignedUrl(userId, data)
+  const post = await service.createPost(userId, data)
 
   return res.status(HttpStatus.CREATED).json(post)
 })
@@ -75,7 +75,7 @@ postRouter.post('/comment/:postId', async (req: Request, res: Response) => {
   const { postId } = req.params
   const data = req.body
 
-  const post = await service.createComment(userId, postId, data)
+  const post = await service.createPost(userId, data, postId)
 
   return res.status(HttpStatus.CREATED).json(post)
 })

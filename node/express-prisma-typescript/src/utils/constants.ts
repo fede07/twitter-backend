@@ -1,5 +1,5 @@
 // Runtime environments
-import * as process from 'node:process';
+import * as process from 'node:process'
 
 export enum NodeEnv {
   DEV = 'development',
@@ -17,10 +17,10 @@ export enum LogLevel {
 // Environment variables, casting to correct type and setting default values for them.
 export class Constants {
   // Node runtime environment
-  static NODE_ENV: NodeEnv = (process.env.NODE_ENV as NodeEnv) || NodeEnv.DEV
+  static NODE_ENV: NodeEnv = (process.env.NODE_ENV as NodeEnv) ?? NodeEnv.DEV
 
   // Logging level
-  static LOG_LEVEL: LogLevel = (process.env.LOG_LEVEL as LogLevel) || LogLevel.INFO
+  static LOG_LEVEL: LogLevel = (process.env.LOG_LEVEL as LogLevel) ?? LogLevel.INFO
 
   // Port to run the server in
   static PORT: string = process.env.PORT ?? '8080'

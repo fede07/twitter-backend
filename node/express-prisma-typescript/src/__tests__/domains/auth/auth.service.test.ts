@@ -6,7 +6,7 @@ import { ConflictException, NotFoundException, ValidationException } from '@util
 jest.mock('@utils', () => ({
   encryptPassword: jest.fn(),
   generateAccessToken: jest.fn(),
-  checkPassword: jest.fn(),
+  checkPassword: jest.fn()
 }))
 
 describe('AuthServiceImpl', () => {
@@ -21,7 +21,6 @@ describe('AuthServiceImpl', () => {
     } as unknown as jest.Mocked<UserRepository>
 
     authService = new AuthServiceImpl(userRepository)
-
   })
 
   describe('signup', () => {
@@ -29,16 +28,16 @@ describe('AuthServiceImpl', () => {
       const signupData = {
         email: 'test@example.com',
         username: 'testuser',
-        password: 'password123',
+        password: 'password123'
       }
       const encryptedPassword = 'encryptedPassword123'
       const createdUser = {
         id: 'new-user-id',
         ...signupData,
         password: encryptedPassword,
-        username: 'testuser',
+        username: 'tester',
         name: null,
-        createdAt: new Date(),
+        createdAt: new Date()
       }
       const token = 'validAccessToken'
 
@@ -54,8 +53,8 @@ describe('AuthServiceImpl', () => {
     it('should throw a ConflictException if the email or username already exists', async () => {
       const signupData = {
         email: 'test@example.com',
-        username: 'testuser',
-        password: 'password123',
+        username: 'tester',
+        password: 'password123'
       }
       const encryptedPassword = 'encryptedPassword123'
 
@@ -64,7 +63,7 @@ describe('AuthServiceImpl', () => {
         ...signupData,
         password: encryptedPassword,
         name: null,
-        createdAt: new Date(),
+        createdAt: new Date()
       }
       userRepository.getByEmailOrUsername.mockResolvedValue(existingUser)
       await expect(authService.signup(signupData)).rejects.toThrow(ConflictException)
@@ -73,20 +72,19 @@ describe('AuthServiceImpl', () => {
     it('should throw a ValidationError if the password is too short', async () => {
       const signupData = {
         email: 'test@example.com',
-        username: 'testuser',
-        password: 'pass',
+        username: 'tester',
+        password: 'pass'
       }
       userRepository.getByEmailOrUsername.mockResolvedValue(null)
       await expect(authService.signup(signupData)).rejects.toThrow(ValidationException)
     })
-
   })
 
   describe('login', () => {
     it('should return a valid token', async () => {
       const loginData = {
         email: 'test@example.com',
-        password: 'password123',
+        password: 'password123'
       }
       const encryptedPassword = 'encryptedPassword123'
       const user = {
@@ -96,7 +94,7 @@ describe('AuthServiceImpl', () => {
         password: encryptedPassword,
         name: null,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       }
       const token = 'validAccessToken'
 
@@ -106,13 +104,12 @@ describe('AuthServiceImpl', () => {
 
       const result = await authService.login(loginData)
       expect(result).toEqual({ token })
-
     })
 
     it('should throw a ConflictException if the password is incorrect', async () => {
       const loginData = {
         email: 'test@example.com',
-        password: 'password123',
+        password: 'password123'
       }
       const encryptedPassword = 'encryptedPassword123'
       const user = {
@@ -122,7 +119,7 @@ describe('AuthServiceImpl', () => {
         password: encryptedPassword,
         name: null,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       }
 
       userRepository.getByEmailOrUsername.mockResolvedValue(user)
@@ -134,13 +131,11 @@ describe('AuthServiceImpl', () => {
     it('should throw a NotFoundException if the user does not exist', async () => {
       const loginData = {
         email: 'test@example.com',
-        password: 'password123',
+        password: 'password123'
       }
 
       userRepository.getByEmailOrUsername.mockResolvedValue(null)
       await expect(authService.login(loginData)).rejects.toThrow(NotFoundException)
     })
   })
-
-
 })

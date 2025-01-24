@@ -1,4 +1,4 @@
-import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto';
+import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 import { PostRepository } from '../repository'
 import { PostService } from '.'
 import { validate } from 'class-validator'
@@ -6,8 +6,7 @@ import { ForbiddenException, NotFoundException } from '@utils'
 import { CursorPagination } from '@types'
 import { FollowerRepository } from '@domains/follower/repository/follower.repository'
 import { UserRepository } from '@domains/user/repository'
-import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils';
-import * as console from 'node:console';
+import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils'
 
 export class PostServiceImpl implements PostService {
   constructor (
@@ -16,41 +15,25 @@ export class PostServiceImpl implements PostService {
     private readonly userRepository: UserRepository
   ) {}
 
-  async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
-    await validate(data)
-    return await this.repository.create(userId, data)
-  }
-
-  async createPostPreSignedUrl (userId: string, data: CreatePostInputDTO): Promise<{ post: PostDTO; presignedUrls: { fileName: string; url: string }[] }> {
+  async createPost (userId: string, data: CreatePostInputDTO, parentId?: string): Promise<{ post: PostDTO, presignedUrls: Array<{ fileName: string, url: string }> }> {
     await validate(data)
 
-    const imageUrls: { fileName: string; presignedUrl: string; publicUrl: string }[] = [];
+    const imageUrls: Array<{ fileName: string, presignedUrl: string, publicUrl: string }> = []
 
-    if (data.images && Array.isArray(data.images)){
+    if (data.images && Array.isArray(data.images)) {
       for (const fileName of data.images) {
-        const timestamp = Date.now();
-        const key = `posts/${userId}/${timestamp}-${fileName}`;
-        const presignedUrl = await generatePresignedUrl(key, 'image/jpeg');
-        console.log('Key: ', key)
-        console.log('PreSignedURL: ', presignedUrl)
-        imageUrls.push({ fileName, presignedUrl, publicUrl: getPublicUrl(key) });
+        const timestamp = Date.now()
+        const key = `posts/${userId}/${timestamp}-${fileName}`
+        const presignedUrl = await generatePresignedUrl(key, 'image/jpeg')
+        imageUrls.push({ fileName, presignedUrl, publicUrl: getPublicUrl(key) })
       }
     }
     data.images = imageUrls.map(({ publicUrl }) => publicUrl)
     const presignedUrls = imageUrls.map(({ fileName, presignedUrl }) => ({ fileName, url: presignedUrl }))
 
-    const post = await this.repository.create(userId, data)
+    const post = await this.repository.create(userId, data, parentId)
 
-    return { post, presignedUrls}
-
-  }
-
-  async createComment (userId: string, parentId: string, data: CreatePostInputDTO): Promise<PostDTO> {
-    if (!parentId) throw new NotFoundException('parentId')
-    const post = await this.repository.getById(parentId)
-    if (!post) throw new NotFoundException('post')
-    await validate(data)
-    return await this.repository.createComment(userId, data, parentId)
+    return { post, presignedUrls }
   }
 
   async deletePost (userId: string, postId: string): Promise<void> {
@@ -69,7 +52,6 @@ export class PostServiceImpl implements PostService {
   }
 
   async getLatestPosts (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
-    // TODO: filter post search to return posts from authors that the user follows
     return await this.repository.getAllByDatePaginated(userId, options)
   }
 
@@ -92,7 +74,6 @@ export class PostServiceImpl implements PostService {
   }
 
   async getCommentsByPostId (postId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
-    console.log("service called")
     return await this.repository.getCommentsByPostId(postId, options)
   }
 
