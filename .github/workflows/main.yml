@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - tasks/11-unit-tests
+      - tasks/12-deployment
   pull_request:
 
 jobs:
