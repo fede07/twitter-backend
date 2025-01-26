@@ -2,11 +2,12 @@ import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 import { PostRepository } from '../repository'
 import { PostService } from '.'
 import { validate } from 'class-validator'
-import { ForbiddenException, NotFoundException } from '@utils'
+import { ForbiddenException, NotFoundException, ValidationException } from '@utils'
 import { CursorPagination } from '@types'
 import { FollowerRepository } from '@domains/follower/repository/follower.repository'
 import { UserRepository } from '@domains/user/repository'
 import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils'
+import { isUuid } from 'uuidv4'
 
 export class PostServiceImpl implements PostService {
   constructor (
@@ -37,6 +38,7 @@ export class PostServiceImpl implements PostService {
   }
 
   async deletePost (userId: string, postId: string): Promise<void> {
+    if (!isUuid(postId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     const post = await this.repository.getById(postId)
     if (!post) throw new NotFoundException('post')
     if (post.authorId !== userId) throw new ForbiddenException()
@@ -44,6 +46,7 @@ export class PostServiceImpl implements PostService {
   }
 
   async getPost (userId: string, postId: string): Promise<PostDTO> {
+    if (!isUuid(postId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     const post = await this.repository.getById(postId)
     if (!post) throw new NotFoundException('post')
     const canViewPost = await this.canViewPost(userId, postId)
@@ -56,6 +59,7 @@ export class PostServiceImpl implements PostService {
   }
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
+    if (!isUuid(authorId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     const isPrivate = await this.userRepository.isPrivate(authorId)
     if (isPrivate) {
       const isFollowing = await this.followerRepository.isFollowing(authorId, userId)
@@ -65,6 +69,7 @@ export class PostServiceImpl implements PostService {
   }
 
   async getCommentByAuthorId (userId: any, authorId: string): Promise<PostDTO[]> {
+    if (!isUuid(authorId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     const isPrivate = await this.userRepository.isPrivate(authorId)
     if (isPrivate) {
       const isFollowing = await this.followerRepository.isFollowing(authorId, userId)
@@ -78,10 +83,12 @@ export class PostServiceImpl implements PostService {
   }
 
   async getAuthorId (postId: string): Promise<string> {
+    if (!isUuid(postId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     return await this.repository.getAuthorId(postId)
   }
 
   async canViewPost (userId: string, postId: string): Promise<boolean> {
+    if (!isUuid(postId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     const authorId = await this.repository.getAuthorId(postId)
     const isPrivate = await this.userRepository.isPrivate(authorId)
     if (!isPrivate) return true

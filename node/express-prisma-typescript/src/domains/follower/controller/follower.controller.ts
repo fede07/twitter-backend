@@ -22,10 +22,6 @@ followerRouter.post('/follow/:user_id', async (req: Request, res: Response) => {
     return res.status(HttpStatus.BAD_REQUEST).send('INVALID_USER_ID')
   }
 
-  if (userId === user_id) {
-    return res.status(HttpStatus.BAD_REQUEST).send('SAME_USER')
-  }
-
   await service.followUser(user_id, userId)
   return res.status(HttpStatus.CREATED).json({
     user: user_id,

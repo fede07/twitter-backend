@@ -350,7 +350,7 @@ const options: OAS3Options = {
               }
             },
             403: {
-              description: 'Forbidden. User cannot follow themself.',
+              description: 'Forbidden.',
               content: {
                 'application/json': {
                   example: {
@@ -360,15 +360,41 @@ const options: OAS3Options = {
                 }
               }
             },
-            409: {
-              description: 'Already Following',
+            404: {
+              description: 'User not found.',
               content: {
                 'application/json': {
                   example: {
-                    message: 'Conflict',
-                    code: 409,
-                    errors: {
-                      error_code: 'ALREADY_FOLLOWING'
+                    message: 'Not found. Couldn\'t find user',
+                    code: 404
+                  }
+                }
+              }
+            },
+            409: {
+              description: 'Conflict',
+              content: {
+                'application/json': {
+                  examples: {
+                    alreadyFollowing: {
+                      summary: 'User is already following the target user',
+                      value: {
+                        message: 'Conflict',
+                        code: 409,
+                        errors: {
+                          error_code: 'ALREADY_FOLLOWING'
+                        }
+                      }
+                    },
+                    selfFollowing: {
+                      summary: 'User cannot follow themselves',
+                      value: {
+                        message: 'Conflict',
+                        code: 409,
+                        errors: {
+                          error_code: 'CANNOT_FOLLOW_YOURSELF'
+                        }
+                      }
                     }
                   }
                 }
