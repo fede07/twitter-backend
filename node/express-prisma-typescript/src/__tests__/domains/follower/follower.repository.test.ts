@@ -11,9 +11,9 @@ describe('FollowerRepositoryImpl', () => {
     dbMock = {
       follow: {
         create: jest.fn(),
-        findFirst: jest.fn() as jest.Mock,
-        delete: jest.fn(),
-      },
+        findFirst: jest.fn(),
+        delete: jest.fn()
+      }
     } as unknown as jest.Mocked<PrismaClient>
 
     followerRepository = new FollowerRepositoryImpl(dbMock)
@@ -25,8 +25,8 @@ describe('FollowerRepositoryImpl', () => {
       expect(dbMock.follow.create).toHaveBeenCalledWith({
         data: {
           followedId: 'targetUserId',
-          followerId: 'mockUserId',
-        },
+          followerId: 'mockUserId'
+        }
       })
     })
   })
@@ -34,7 +34,7 @@ describe('FollowerRepositoryImpl', () => {
   describe('unfollowUser', () => {
     it('should allow a user to unfollow another user', async () => {
       (dbMock.follow.findFirst as jest.Mock).mockResolvedValue({
-        id: 'mockFollowId',
+        id: 'mockFollowId'
       })
       await followerRepository.unfollowUser('targetUserId', 'mockedUserId')
       expect(dbMock.follow.delete).toHaveBeenCalled()
@@ -58,7 +58,6 @@ describe('FollowerRepositoryImpl', () => {
     })
 
     it('should return false if a follow entry does not exist', async () => {
-
       (dbMock.follow.findFirst as jest.Mock).mockResolvedValue(null)
       const result = await followerRepository.isFollowing('mockFollowedId', 'mockFollowerId')
       expect(result).toBe(false)

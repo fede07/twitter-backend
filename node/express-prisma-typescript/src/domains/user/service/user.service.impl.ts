@@ -4,8 +4,7 @@ import { UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
 import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils'
-import { v4 as uuidv4 } from 'uuid'
-import { isUuid } from 'uuidv4'
+import { v4 as uuidv4, validate as isUuid } from 'uuid'
 
 export class UserServiceImpl implements UserService {
   constructor (private readonly repository: UserRepository) {}

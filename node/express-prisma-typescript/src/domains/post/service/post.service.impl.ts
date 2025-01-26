@@ -7,7 +7,7 @@ import { CursorPagination } from '@types'
 import { FollowerRepository } from '@domains/follower/repository/follower.repository'
 import { UserRepository } from '@domains/user/repository'
 import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils'
-import { isUuid } from 'uuidv4'
+import { validate as isUuid } from 'uuid'
 
 export class PostServiceImpl implements PostService {
   constructor (

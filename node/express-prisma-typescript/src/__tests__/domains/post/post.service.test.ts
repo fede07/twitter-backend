@@ -4,6 +4,7 @@ import { FollowerRepository } from '@domains/follower/repository/follower.reposi
 import { UserRepository } from '@domains/user/repository'
 import { validate } from 'class-validator'
 import { generatePresignedUrl } from '@utils/s3-utils'
+import * as uuidUtils from 'uuid'
 
 jest.mock('class-validator', () => ({
   validate: jest.fn()
@@ -173,6 +174,7 @@ describe('PostService', () => {
         qtyRetweets: 0
       }
 
+      jest.spyOn(uuidUtils, 'validate').mockReturnValue(true)
       userRepository.isPrivate.mockResolvedValue(true)
       followerRepository.isFollowing.mockResolvedValue(true)
       postRepository.getByAuthorId.mockResolvedValue([post])
@@ -321,6 +323,7 @@ describe('PostService', () => {
         qtyRetweets: 0
       }
 
+      jest.spyOn(uuidUtils, 'validate').mockReturnValue(true)
       userRepository.isPrivate.mockResolvedValue(true)
       followerRepository.isFollowing.mockResolvedValue(true)
       postRepository.getCommentByAuthorId.mockResolvedValue([createdComment])

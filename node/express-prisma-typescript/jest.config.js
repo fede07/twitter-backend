@@ -26,6 +26,6 @@ module.exports = {
     '!src/types/*.ts',
     '!src/utils/*.ts',
     '!src/domains/**/index.ts',
-    '!src/domains/**/controller/*.ts',
+    'src/domains/**/controller/*.ts',
   ],
 };
