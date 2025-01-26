@@ -109,18 +109,7 @@ export class PostRepositoryImpl implements PostRepository {
         comments: true
       }
     })
-    return posts.map((post) => {
-      const qtyLikes = post.Reaction.filter((r) => r.type === 'LIKE').length
-      const qtyRetweets = post.Reaction.filter((r) => r.type === 'RETWEET').length
-      const qtyComments = post.comments?.length || 0
-      return new ExtendedPostDTO({
-        ...post,
-        author: post.author,
-        qtyLikes,
-        qtyRetweets,
-        qtyComments
-      })
-    })
+    return posts.map((post) => this.mapPostToExtendedPostDTO(post))
   }
 
   async getAuthorId (postId: string): Promise<string> {
@@ -169,18 +158,7 @@ export class PostRepositoryImpl implements PostRepository {
       take: options.limit ? (options.before ? -options.limit : options.limit) : undefined
     })
 
-    const extendedComments = comments.map((comment) => {
-      const qtyLikes = comment.Reaction.filter((r) => r.type === 'LIKE').length
-      const qtyRetweets = comment.Reaction.filter((r) => r.type === 'RETWEET').length
-      const qtyComments = comment.comments?.length || 0
-      return new ExtendedPostDTO({
-        ...comment,
-        author: comment.author,
-        qtyLikes,
-        qtyRetweets,
-        qtyComments
-      })
-    })
+    const extendedComments = comments.map((comment) => this.mapPostToExtendedPostDTO(comment))
 
     extendedComments.sort((a, b) => {
       if (b.qtyLikes !== a.qtyLikes) {
@@ -190,5 +168,19 @@ export class PostRepositoryImpl implements PostRepository {
     })
 
     return extendedComments
+  }
+
+  private mapPostToExtendedPostDTO (post: any): ExtendedPostDTO {
+    const qtyLikes = post.Reaction.filter((r: { type: string }) => r.type === 'LIKE').length
+    const qtyRetweets = post.Reaction.filter((r: { type: string }) => r.type === 'RETWEET').length
+    const qtyComments = post.comments?.length
+
+    return new ExtendedPostDTO({
+      ...post,
+      author: post.author,
+      qtyLikes,
+      qtyRetweets,
+      qtyComments
+    })
   }
 }

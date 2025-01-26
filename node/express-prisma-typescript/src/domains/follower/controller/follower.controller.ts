@@ -7,10 +7,11 @@ import { db } from '@utils'
 import { FollowerRepositoryImpl } from '@domains/follower/repository/follower.repository.impl'
 import { FollowerService } from '@domains/follower/service/follower.service'
 import { FollowerServiceImpl } from '@domains/follower/service/follower.service.impl'
+import { UserRepositoryImpl } from '@domains/user/repository'
 
 export const followerRouter = Router()
 
-const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db))
+const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
 
 followerRouter.post('/follow/:user_id', async (req: Request, res: Response) => {
   const { userId } = res.locals.context

@@ -1,7 +1,7 @@
 import { SignupInputDTO } from '@domains/auth/dto'
 import { PrismaClient } from '@prisma/client'
 import { OffsetPagination } from '@types'
-import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto';
+import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from './user.repository'
 
 export class UserRepositoryImpl implements UserRepository {
@@ -67,7 +67,7 @@ export class UserRepositoryImpl implements UserRepository {
         }
       },
       take: options.limit ? options.limit : undefined,
-      skip: options.skip ? options.skip : undefined,
+      skip: options.skip ? options.skip : undefined
     })
     return users.map(user => new UserViewDTO(user))
   }
@@ -91,6 +91,17 @@ export class UserRepositoryImpl implements UserRepository {
       },
       data: {
         profileImage: imageUrl
+      }
+    })
+  }
+
+  async updatePrivacy (userId: string, isPrivate: boolean): Promise<UserViewDTO> {
+    return await this.db.user.update({
+      where: {
+        id: userId
+      },
+      data: {
+        isPrivate
       }
     })
   }

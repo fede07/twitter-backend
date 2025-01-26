@@ -4,23 +4,22 @@ export class MessageInputDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(240)
-  text!: string
+    text!: string
 
   @IsString()
   @IsNotEmpty()
   @IsUUID()
-  userId!: string
+    userId!: string
 
   @IsString()
   @IsNotEmpty()
   @IsUUID()
-  recipientId!: string
+    recipientId!: string
 
   @IsString()
   @IsNotEmpty()
   @IsUUID()
-  roomId!: string
-
+    roomId!: string
 }
 
 export class MessageDto {
@@ -32,6 +31,7 @@ export class MessageDto {
     this.roomId = message.roomId
     this.createdAt = message.createdAt
   }
+
   id: string
   text: string
   senderId: string

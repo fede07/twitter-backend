@@ -82,9 +82,9 @@ export class PostServiceImpl implements PostService {
   }
 
   async canViewPost (userId: string, postId: string): Promise<boolean> {
-    const isPrivate = await this.userRepository.isPrivate(userId)
-    if (!isPrivate) return true
     const authorId = await this.repository.getAuthorId(postId)
+    const isPrivate = await this.userRepository.isPrivate(authorId)
+    if (!isPrivate) return true
     return await this.followerRepository.isFollowing(authorId, userId)
   }
 }

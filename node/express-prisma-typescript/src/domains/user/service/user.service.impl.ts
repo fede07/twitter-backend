@@ -1,6 +1,6 @@
-import { NotFoundException } from '@utils/errors';
+import { NotFoundException } from '@utils/errors'
 import { OffsetPagination } from 'types'
-import { UserDTO, UserViewDTO } from '../dto';
+import { UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
 import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils'
@@ -31,19 +31,23 @@ export class UserServiceImpl implements UserService {
   }
 
   async generateProfileImageUrl (userId: string): Promise<string> {
-    const uuid = uuidv4();
-    const key = `users/${userId}/${uuid}.jpg`;
+    const uuid = uuidv4()
+    const key = `users/${userId}/${uuid}.jpg`
 
-    const uploadUrl = await generatePresignedUrl(key, 'image/jpeg');
+    const uploadUrl = await generatePresignedUrl(key, 'image/jpeg')
 
-    const fileUrl = getPublicUrl(key);
+    const fileUrl = getPublicUrl(key)
 
-    await this.repository.updateProfileImage(userId, fileUrl);
+    await this.repository.updateProfileImage(userId, fileUrl)
 
-    return uploadUrl;
+    return uploadUrl
   }
 
-  async getUsersByUsername (username: string, pagination: {limit: number, skip: number}): Promise<UserViewDTO[]> {
-    return this.repository.getUsersByUsername(username, pagination)
+  async getUsersByUsername (username: string, pagination: { limit: number, skip: number }): Promise<UserViewDTO[]> {
+    return await this.repository.getUsersByUsername(username, pagination)
+  }
+
+  async updateUserPrivacy (userId: string, isPrivate: boolean): Promise<UserViewDTO> {
+    return await this.repository.updatePrivacy(userId, isPrivate)
   }
 }

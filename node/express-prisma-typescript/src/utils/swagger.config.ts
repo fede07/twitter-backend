@@ -58,9 +58,9 @@ const options: OAS3Options = {
             password: { type: 'string', format: 'password' }
           },
           example: {
-            email: 'johndoe@example.com',
-            username: 'johndoe',
-            password: 'strongPass123!'
+            email: 'user@example.com',
+            username: 'user123',
+            password: 'StrongPass123!'
           },
           required: ['email', 'username', 'password']
         },
@@ -632,7 +632,7 @@ const options: OAS3Options = {
               schema: {
                 type: 'string'
               },
-              example: 'e8bde95c-0f72-412c-ab7e-af364acfda2c'
+              example: '52d442da-a706-40cd-90a5-c2595e426ee5'
             }
           ],
           responses: {
@@ -674,6 +674,20 @@ const options: OAS3Options = {
                   }
                 }
               }
+            },
+            500: {
+              description: 'Internal Server Error',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Internal Server Error',
+                    code: 500,
+                    errors: {
+                      error_code: 'INTERNAL_SERVER_ERROR'
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -699,7 +713,7 @@ const options: OAS3Options = {
             }
           ],
           responses: {
-            204: {
+            200: {
               description: 'Post deleted successfully.',
               content: {
                 'application/json': {
@@ -727,6 +741,20 @@ const options: OAS3Options = {
                 'application/json': {
                   example: {
                     message: 'Not found'
+                  }
+                }
+              }
+            },
+            500: {
+              description: 'Internal Server Error',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Internal Server Error',
+                    code: 500,
+                    errors: {
+                      error_code: 'INTERNAL_SERVER_ERROR'
+                    }
                   }
                 }
               }

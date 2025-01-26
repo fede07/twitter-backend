@@ -1,6 +1,6 @@
 import { SignupInputDTO } from '@domains/auth/dto'
 import { OffsetPagination } from '@types'
-import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto';
+import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto'
 
 export interface UserRepository {
   create: (data: SignupInputDTO) => Promise<UserDTO>
@@ -11,4 +11,5 @@ export interface UserRepository {
   getUsersByUsername: (username: string, options: OffsetPagination) => Promise<UserViewDTO[]>
   isPrivate: (userId: string) => Promise<boolean>
   updateProfileImage: (userId: string, data: string) => Promise<UserViewDTO>
+  updatePrivacy: (userId: string, isPrivate: boolean) => Promise<UserViewDTO>
 }

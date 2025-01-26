@@ -6,25 +6,25 @@ import { MessageServiceImpl } from '@domains/message/service/message.service.imp
 import { MessageRepositoryImpl } from '@domains/message/repository'
 import { FollowerServiceImpl } from '@domains/follower/service/follower.service.impl'
 import { FollowerRepositoryImpl } from '@domains/follower/repository/follower.repository.impl'
+import { UserRepositoryImpl } from '@domains/user/repository'
 
 interface AuthenticatedSocket extends Socket {
   userId?: string
 }
 
 const messageService = new MessageServiceImpl(new MessageRepositoryImpl(db))
-const followerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db))
+const followerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
 
-const setupSocket = (httpServer: HttpServer) => {
-
+const setupSocket = (httpServer: HttpServer): void => {
   const io = new Server(httpServer)
 
   io.use((socket: AuthenticatedSocket, next) => {
-    const token = socket.handshake.headers['authorization'];
-    if (!token)
-    {
-      return next(new Error('MISSING_TOKEN'))
+    const token = socket.handshake.headers.authorization
+    if (!token) {
+      next(new Error('MISSING_TOKEN'))
+      return
     }
-    try{
+    try {
       const extractedToken = token.split(' ')[1]
       const payload = jwt.verify(extractedToken, Constants.TOKEN_SECRET) as { userId: string }
       socket.userId = payload.userId
@@ -32,19 +32,17 @@ const setupSocket = (httpServer: HttpServer) => {
     } catch {
       next(new Error('INVALID_TOKEN'))
     }
-
   })
 
   io.on('connection', (socket: AuthenticatedSocket) => {
-
     socket.emit('User ', socket.userId, ' connected')
 
-    socket.on('join-chat', async ({recipientId}: { recipientId: string }) => {
+    socket.on('join-chat', async ({ recipientId }: { recipientId: string }) => {
       if (!socket.userId) return
       const follows = await followerService.areBothFollowingEachOther(recipientId, socket.userId)
       if (follows) {
         const room = [socket.userId, recipientId].sort().join('-')
-        socket.join(room)
+        void socket.join(room)
         socket.emit('joined-chat', { roomId: room })
         socket.to(room).emit(socket.userId, ' joined-chat', { roomId: room })
       } else {
@@ -53,25 +51,21 @@ const setupSocket = (httpServer: HttpServer) => {
     })
 
     socket.on('chat-message', async ({ roomId, message }: { message: string, roomId: string }) => {
-
-      if(!roomId)
-      {
+      if (!roomId) {
         socket.emit('error', { message: 'Room id is missing' })
         return
       }
-      if(!message)
-      {
+      if (!message) {
         socket.emit('error', { message: 'Message is missing' })
         return
       }
 
-      if (!socket.userId)
-      {
+      if (!socket.userId) {
         socket.emit('error', { message: 'You are not logged in' })
         return
       }
 
-      if(!socket.rooms.has(roomId)){
+      if (!socket.rooms.has(roomId)) {
         socket.emit('error', { message: 'You are not in this room' })
         return
       }
@@ -81,7 +75,7 @@ const setupSocket = (httpServer: HttpServer) => {
 
       const bothFollowing = await followerService.areBothFollowingEachOther(user1, user2)
 
-      if(!bothFollowing) {
+      if (!bothFollowing) {
         socket.emit('error', { message: 'You are not following each other' })
         return
       }
@@ -89,7 +83,7 @@ const setupSocket = (httpServer: HttpServer) => {
       const senderId = socket.userId
       const recipientId = user1 === socket.userId ? user2 : user1
       console.log(senderId, recipientId)
-      if (![senderId, recipientId].includes(socket.userId)){
+      if (![senderId, recipientId].includes(socket.userId)) {
         socket.emit('error', { message: 'You cannot send messages to this room' })
         return
       }
@@ -97,8 +91,8 @@ const setupSocket = (httpServer: HttpServer) => {
       const savedMessage = await messageService.saveMessage({
         text: message,
         userId: senderId,
-        recipientId: recipientId,
-        roomId: roomId,
+        recipientId,
+        roomId
       })
       io.to(roomId).emit('new-message', savedMessage.text)
     })

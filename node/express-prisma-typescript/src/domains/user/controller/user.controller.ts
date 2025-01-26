@@ -43,6 +43,7 @@ userRouter.get('/by_username/:username', async (req: Request, res: Response) => 
   const { limit, skip } = req.query as Record<string, string>
 
   const users = await service.getUsersByUsername(username, { limit: Number(limit), skip: Number(skip) })
+
   return res.status(HttpStatus.OK).json(users)
 })
 
@@ -58,7 +59,7 @@ userRouter.post('/profile-image', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
 
   try {
-    const uploadUrl = await service.generateProfileImageUrl(userId);
+    const uploadUrl = await service.generateProfileImageUrl(userId)
 
     return res.status(HttpStatus.OK).json({ uploadUrl })
   } catch (error) {
@@ -66,3 +67,19 @@ userRouter.post('/profile-image', async (req: Request, res: Response) => {
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
   }
 })
+
+// userRouter.patch('/privacy', async (req: Request, res: Response) => {
+//   const { userId } = res.locals.context
+//   const { privacy } = req.body
+//
+//   if (typeof privacy !== 'boolean') {
+//     return res.status(HttpStatus.BAD_REQUEST).send('INVALID_PRIVACY')
+//   }
+//
+//   try {
+//     await service.updateUserPrivacy(userId, privacy)
+//     return res.status(HttpStatus.OK)
+//   } catch (error) {
+//     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+//   }
+// })
