@@ -53,6 +53,8 @@ export class UserServiceImpl implements UserService {
 
   async updateUserPrivacy (userId: string, isPrivate: boolean): Promise<UserViewDTO> {
     if (!isUuid(userId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
+    console.log('repository')
+
     return await this.repository.updatePrivacy(userId, isPrivate)
   }
 }

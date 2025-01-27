@@ -68,18 +68,18 @@ userRouter.post('/profile-image', async (req: Request, res: Response) => {
   }
 })
 
-// userRouter.patch('/privacy', async (req: Request, res: Response) => {
-//   const { userId } = res.locals.context
-//   const { privacy } = req.body
-//
-//   if (typeof privacy !== 'boolean') {
-//     return res.status(HttpStatus.BAD_REQUEST).send('INVALID_PRIVACY')
-//   }
-//
-//   try {
-//     await service.updateUserPrivacy(userId, privacy)
-//     return res.status(HttpStatus.OK)
-//   } catch (error) {
-//     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
-//   }
-// })
+userRouter.post('/privacy', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { privacy } = req.body
+
+  if (privacy !== false && privacy !== true) {
+    return res.status(HttpStatus.BAD_REQUEST).send('INVALID_PRIVACY')
+  }
+
+  try {
+    const updatedUser = await service.updateUserPrivacy(userId, privacy)
+    return res.status(HttpStatus.OK).send({ ...updatedUser, isPrivate: privacy })
+  } catch (error) {
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+  }
+})

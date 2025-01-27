@@ -96,13 +96,20 @@ export class UserRepositoryImpl implements UserRepository {
   }
 
   async updatePrivacy (userId: string, isPrivate: boolean): Promise<UserViewDTO> {
-    return await this.db.user.update({
+    const user = await this.db.user.update({
       where: {
         id: userId
       },
       data: {
         isPrivate
+      },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        profileImage: true
       }
     })
+    return new UserViewDTO(user)
   }
 }
