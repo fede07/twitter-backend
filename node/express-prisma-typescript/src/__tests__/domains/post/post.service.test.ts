@@ -82,6 +82,7 @@ describe('PostService', () => {
         },
         presignedUrls
       }
+      jest.spyOn(uuidUtils, 'validate').mockReturnValue(true)
       postRepository.create.mockResolvedValue(post)
       const createdPostDTO = await postService.createPost(userId, postData)
       expect(createdPostDTO).toEqual(createdPost)
@@ -223,6 +224,16 @@ describe('PostService', () => {
         images: []
       }
       jest.spyOn({ validate }, 'validate').mockRejectedValue(new Error('validation error'))
+      await expect(postService.createPost(userId, postData)).rejects.toThrow(Error)
+    })
+
+    it('should throw validation error if uuid is invalid', async () => {
+      const userId = 'mockUserId'
+      const postData = {
+        title: 'mockTitle',
+        content: 'mockContent',
+        images: []
+      }
       await expect(postService.createPost(userId, postData)).rejects.toThrow(Error)
     })
   })
@@ -382,6 +393,13 @@ describe('PostService', () => {
       }
 
       postRepository.getById.mockResolvedValue(mockPost)
+      await expect(postService.deletePost(userId, postId)).rejects.toThrow(Error)
+    })
+
+    it('should throw error if uuid is invalid', async () => {
+      const userId = 'mockUserId'
+      const postId = 'mockPostId'
+
       await expect(postService.deletePost(userId, postId)).rejects.toThrow(Error)
     })
   })

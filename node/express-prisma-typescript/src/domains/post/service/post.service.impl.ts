@@ -17,8 +17,12 @@ export class PostServiceImpl implements PostService {
   ) {}
 
   async createPost (userId: string, data: CreatePostInputDTO, parentId?: string): Promise<{ post: PostDTO, presignedUrls: Array<{ fileName: string, url: string }> }> {
+    if (!isUuid(userId)) {
+      throw new ValidationException([{ message: 'INVALID_UUID' }])
+    }
+    if (parentId && !isUuid(parentId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
+    if (parentId && (await this.repository.getById(parentId) === null)) throw new NotFoundException('post')
     await validate(data)
-
     const imageUrls: Array<{ fileName: string, presignedUrl: string, publicUrl: string }> = []
 
     if (data.images && Array.isArray(data.images)) {
