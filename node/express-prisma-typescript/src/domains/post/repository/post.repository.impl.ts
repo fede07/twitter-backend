@@ -28,7 +28,8 @@ export class PostRepositoryImpl implements PostRepository {
               followerId: userId
             }
           }
-        }
+        },
+        deletedAt: null
       },
       include: {
         author: {
@@ -75,8 +76,6 @@ export class PostRepositoryImpl implements PostRepository {
         id: postId
       },
       data: {
-        content: '[DELETED]',
-        images: [],
         deletedAt: new Date()
       }
     })
@@ -85,7 +84,8 @@ export class PostRepositoryImpl implements PostRepository {
   async getById (postId: string): Promise<PostDTO | null> {
     const post = await this.db.post.findUnique({
       where: {
-        id: postId
+        id: postId,
+        deletedAt: null
       }
     })
     return post != null ? new PostDTO(post) : null
@@ -94,7 +94,8 @@ export class PostRepositoryImpl implements PostRepository {
   async getByAuthorId (authorId: string): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
-        authorId
+        authorId,
+        deletedAt: null
       },
       include: {
         author: {
@@ -128,6 +129,7 @@ export class PostRepositoryImpl implements PostRepository {
     const posts = await this.db.post.findMany({
       where: {
         authorId,
+        deletedAt: null,
         parentId: {
           not: null
         }
@@ -139,7 +141,8 @@ export class PostRepositoryImpl implements PostRepository {
   async getCommentsByPostId (postId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const comments = await this.db.post.findMany({
       where: {
-        parentId: postId
+        parentId: postId,
+        deletedAt: null
       },
       include: {
         author: {

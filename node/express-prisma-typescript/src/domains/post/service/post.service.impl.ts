@@ -20,20 +20,26 @@ export class PostServiceImpl implements PostService {
     if (!isUuid(userId)) {
       throw new ValidationException([{ message: 'INVALID_UUID' }])
     }
-    if (parentId && !isUuid(parentId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
-    if (parentId && (await this.repository.getById(parentId) === null)) throw new NotFoundException('post')
+    if (parentId) {
+      if (!isUuid(parentId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
+      const parentPost = await this.repository.getById(parentId)
+      if ((parentPost === null)) throw new NotFoundException('post')
+    }
     await validate(data)
-    const imageUrls: Array<{ fileName: string, presignedUrl: string, publicUrl: string }> = []
+    const imageUrls: Array<{ fileName: string, presignedUrl: string, key: string }> = []
 
     if (data.images && Array.isArray(data.images)) {
       for (const fileName of data.images) {
         const timestamp = Date.now()
-        const key = `posts/${userId}/${timestamp}-${fileName}`
+        const key = `users/${userId}/posts/${timestamp}-${fileName}`
         const presignedUrl = await generatePresignedUrl(key, 'image/jpeg')
-        imageUrls.push({ fileName, presignedUrl, publicUrl: getPublicUrl(key) })
+
+        console.log('PublicURL', getPublicUrl(key))
+
+        imageUrls.push({ fileName, presignedUrl, key })
       }
     }
-    data.images = imageUrls.map(({ publicUrl }) => publicUrl)
+    data.images = imageUrls.map(({ key }) => key)
     const presignedUrls = imageUrls.map(({ fileName, presignedUrl }) => ({ fileName, url: presignedUrl }))
 
     const post = await this.repository.create(userId, data, parentId)

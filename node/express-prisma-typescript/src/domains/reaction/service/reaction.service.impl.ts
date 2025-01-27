@@ -3,7 +3,7 @@ import { ReactionService } from '@domains/reaction/service/reaction.service'
 import { UserRepository } from '@domains/user/repository'
 import { PostRepository } from '@domains/post/repository'
 import { Reaction, ReactionType } from '@prisma/client'
-import { ConflictException, NotFoundException, } from '@utils'
+import { ConflictException, NotFoundException } from '@utils'
 
 export class ReactionServiceImpl implements ReactionService {
   constructor (
@@ -21,6 +21,7 @@ export class ReactionServiceImpl implements ReactionService {
     if (!post) {
       throw new NotFoundException('post')
     }
+
     if (type === ReactionType.LIKE) {
       const isLiked = await this.reactionRepository.isLiked(postId, userId)
       if (isLiked) throw new ConflictException('ALREADY_LIKED')

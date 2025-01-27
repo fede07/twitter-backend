@@ -1,5 +1,5 @@
-import { ArrayMaxSize, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
-import { UserViewDTO } from '@domains/user/dto';
+import { ArrayMaxSize, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
+import { UserViewDTO } from '@domains/user/dto'
 
 export class CreatePostInputDTO {
   @IsString()
