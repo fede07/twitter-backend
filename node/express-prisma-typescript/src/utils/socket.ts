@@ -14,7 +14,6 @@ interface AuthenticatedSocket extends Socket {
 
 const messageService = new MessageServiceImpl(new MessageRepositoryImpl(db))
 const followerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
-
 const setupSocket = (httpServer: HttpServer): void => {
   const io = new Server(httpServer)
 
@@ -37,14 +36,12 @@ const setupSocket = (httpServer: HttpServer): void => {
   io.on('connection', (socket: AuthenticatedSocket) => {
     socket.emit('User ', socket.userId, ' connected')
 
+    // TODO: VALIDATIONS
+
     socket.on('join-chat', async ({ recipientId }: { recipientId: string }) => {
-      console.log('recipientId: ', recipientId)
-      console.log('socket.userId: ', socket.userId)
       if (!socket.userId) return
       const follows = await followerService.areBothFollowingEachOther(recipientId, socket.userId)
       if (follows) {
-        console.log('joining room')
-        console.log('isFollowing: ', follows)
         const room = [socket.userId, recipientId].sort().join('-')
         void socket.join(room)
         socket.emit('joined-chat', { roomId: room })
