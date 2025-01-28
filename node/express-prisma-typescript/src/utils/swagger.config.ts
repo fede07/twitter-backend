@@ -779,7 +779,8 @@ const options: OAS3Options = {
               content: {
                 'application/json': {
                   example: {
-                    message: 'Not found'
+                    message: 'Not found. Couldn\'t find post',
+                    code: 404
                   }
                 }
               }
@@ -1597,7 +1598,7 @@ const options: OAS3Options = {
           }
         }
       },
-      '/api/user/:userId': {
+      '/api/user/{userId}': {
         get: {
           summary: 'Get user by id',
           tags: ['User'],

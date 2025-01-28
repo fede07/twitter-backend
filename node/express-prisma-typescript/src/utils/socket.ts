@@ -38,9 +38,13 @@ const setupSocket = (httpServer: HttpServer): void => {
     socket.emit('User ', socket.userId, ' connected')
 
     socket.on('join-chat', async ({ recipientId }: { recipientId: string }) => {
+      console.log('recipientId: ', recipientId)
+      console.log('socket.userId: ', socket.userId)
       if (!socket.userId) return
       const follows = await followerService.areBothFollowingEachOther(recipientId, socket.userId)
       if (follows) {
+        console.log('joining room')
+        console.log('isFollowing: ', follows)
         const room = [socket.userId, recipientId].sort().join('-')
         void socket.join(room)
         socket.emit('joined-chat', { roomId: room })
