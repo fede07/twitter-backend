@@ -70,10 +70,12 @@ export class PostServiceImpl implements PostService {
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
     if (!isUuid(authorId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
-    const isPrivate = await this.userRepository.isPrivate(authorId)
-    if (isPrivate) {
-      const isFollowing = await this.followerRepository.isFollowing(authorId, userId)
-      if (!isFollowing) throw new ForbiddenException()
+    if (userId !== authorId) {
+      const isPrivate = await this.userRepository.isPrivate(authorId)
+      if (isPrivate) {
+        const isFollowing = await this.followerRepository.isFollowing(authorId, userId)
+        if (!isFollowing) throw new ForbiddenException()
+      }
     }
     return await this.repository.getByAuthorId(authorId)
   }

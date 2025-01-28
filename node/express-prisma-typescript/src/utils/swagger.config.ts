@@ -460,7 +460,7 @@ const options: OAS3Options = {
               }
             },
             // 403: {
-            //   description: 'Forbidden. User cannot unfollow themself.',
+            //   description: 'Forbidden. User cannot unfollow themselves.',
             //   content: {
             //     'application/json': {
             //       example: {
@@ -527,6 +527,36 @@ const options: OAS3Options = {
           security: [
             {
               bearerAuth: []
+            }
+          ],
+          parameters: [
+            {
+              name: 'limit',
+              in: 'query',
+              required: false,
+              description: 'The max number of post to be retrieved..',
+              schema: {
+                type: 'number',
+                default: 10
+              }
+            },
+            {
+              name: 'before',
+              in: 'query',
+              required: false,
+              schema: {
+                type: 'string',
+                format: 'uuid'
+              }
+            },
+            {
+              name: 'after',
+              in: 'query',
+              required: false,
+              schema: {
+                type: 'string',
+                format: 'uuid'
+              }
             }
           ],
           responses: {
@@ -1558,6 +1588,61 @@ const options: OAS3Options = {
           }
         }
       },
+      '/api/user/by_username/{username}': {
+        get: {
+          summary: 'Get user by username',
+          description: 'Searches for a user by username',
+          tags: ['User'],
+          parameters: [
+            {
+              in: 'path',
+              name: 'username',
+              required: true,
+              schema: {},
+              example: 'johndoe'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'User found',
+              content: {
+                'application/json': {
+                  example: {
+                    id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    username: 'johndoe',
+                    name: 'Johnny Doe',
+                    profileImage: 'URL'
+                  }
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {
+                      error_code: 'MISSING_TOKEN'
+                    }
+                  }
+                }
+              }
+            },
+            404: {
+              description: 'User not found.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Not found. Couldn\'t find user'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       '/api/user/me': {
         get: {
           summary: 'Get current user',
@@ -1711,6 +1796,41 @@ const options: OAS3Options = {
               content: {
                 'application/json': {
                   example: 'INVALID_PRIVACY_SETTING'
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/user/profile-image': {
+        post: {
+          summary: 'Change profile image',
+          tags: ['User'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          responses: {
+            200: {
+              description: 'Profile image changed successfully.',
+              content: {
+                'application/json': {
+                  example: {
+                    uploadUrl: 'https://upload.com/image.png'
+                  }
                 }
               }
             },

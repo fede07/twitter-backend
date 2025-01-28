@@ -35,13 +35,14 @@ export class UserServiceImpl implements UserService {
 
   async generateProfileImageUrl (userId: string): Promise<string> {
     const uuid = uuidv4()
-    const key = `users/${userId}/${uuid}.jpg`
+    const key = `users/${userId}/profile-image-${uuid}.jpg`
 
     const uploadUrl = await generatePresignedUrl(key, 'image/jpeg')
 
     const fileUrl = getPublicUrl(key)
+    console.log('PublicURL', fileUrl)
 
-    await this.repository.updateProfileImage(userId, fileUrl)
+    await this.repository.updateProfileImage(userId, key)
 
     return uploadUrl
   }
