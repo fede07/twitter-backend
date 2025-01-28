@@ -12,6 +12,10 @@ const options: OAS3Options = {
       {
         url: 'http://localhost:8080',
         description: 'Development server'
+      },
+      {
+        url: 'https://twitter-backend-production-4491.up.railway.app',
+        description: 'Production server'
       }
     ],
     tags: [
