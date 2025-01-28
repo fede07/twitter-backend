@@ -5,7 +5,7 @@ import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto'
 export interface UserRepository {
   create: (data: SignupInputDTO) => Promise<UserDTO>
   delete: (userId: string) => Promise<void>
-  getRecommendedUsersPaginated: (options: OffsetPagination) => Promise<UserDTO[]>
+  getRecommendedUsersPaginated: (userId: string, options: OffsetPagination) => Promise<UserDTO[]>
   getById: (userId: string) => Promise<UserViewDTO | null>
   getByEmailOrUsername: (email?: string, username?: string) => Promise<ExtendedUserDTO | null>
   getUsersByUsername: (username: string, options: OffsetPagination) => Promise<UserViewDTO[]>

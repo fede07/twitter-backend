@@ -1462,7 +1462,7 @@ const options: OAS3Options = {
           ],
           responses: {
             200: {
-              description: 'List of recommended users',
+              description: 'List of recommended users. Recommended users users followed by the user\'s followings',
               content: {
                 'application/json': {
                   example: [

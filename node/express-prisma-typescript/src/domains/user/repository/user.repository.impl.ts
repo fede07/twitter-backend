@@ -30,8 +30,27 @@ export class UserRepositoryImpl implements UserRepository {
     })
   }
 
-  async getRecommendedUsersPaginated (options: OffsetPagination): Promise<UserDTO[]> {
+  async getRecommendedUsersPaginated (userId: string, options: OffsetPagination): Promise<UserDTO[]> {
+    const followings = await this.db.follow.findMany({
+      where: { followerId: userId },
+      select: { followedId: true }
+    })
+    const followingsIds = followings.map(f => f.followedId)
+
+    const followedByFollowings = await this.db.follow.findMany({
+      where: {
+        followerId: {
+          in: followingsIds
+        }
+      },
+      select: { followedId: true }
+    })
+    const followedByFollowingsIds = followedByFollowings.map(f => f.followedId)
+
     const users = await this.db.user.findMany({
+      where: {
+        id: { in: followedByFollowingsIds }
+      },
       take: options.limit ? options.limit : undefined,
       skip: options.skip ? options.skip : undefined,
       orderBy: [
@@ -40,6 +59,7 @@ export class UserRepositoryImpl implements UserRepository {
         }
       ]
     })
+
     return users.map(user => new UserDTO(user))
   }
 
