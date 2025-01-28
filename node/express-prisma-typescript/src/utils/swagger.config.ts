@@ -234,32 +234,37 @@ const options: OAS3Options = {
               }
             },
             400: {
-              description: 'Validation error.',
+              description: 'Validation error. Missing password or invalid password.',
               content: {
                 'application/json': {
                   example: {
                     missingPassword: {
                       message: 'Validation error',
                       code: 400,
-                      errors: {
-                        property: 'password',
-                        children: [],
-                        constraints: {}
-                      }
+                      errors: [
+                        {
+                          property: 'password',
+                          children: [],
+                          constraints: {
+                            isNotEmpty: 'password should not be empty',
+                            isString: 'password must be a string'
+                          }
+                        }
+                      ]
                     }
                   }
                 }
               }
             },
             401: {
-              description: 'Unauthorized. Incorrect password.',
+              description: 'Unauthorized. Incorrect credentials.',
               content: {
                 'application/json': {
                   example: {
                     message: 'Unauthorized. You must login to access this content.',
                     code: 401,
                     errors: {
-                      error_code: 'INCORRECT_PASSWORD'
+                      error_code: 'INCORRECT_CREDENTIALS'
                     }
                   }
                 }
@@ -336,7 +341,7 @@ const options: OAS3Options = {
               }
             },
             401: {
-              description: 'Unauthorized.',
+              description: 'Unauthorized. Not logged in.',
               content: {
                 'application/json': {
                   example: {
@@ -345,17 +350,6 @@ const options: OAS3Options = {
                     errors: {
                       error_code: 'MISSING_TOKEN'
                     }
-                  }
-                }
-              }
-            },
-            403: {
-              description: 'Forbidden.',
-              content: {
-                'application/json': {
-                  example: {
-                    message: 'Forbidden. You are not allowed to perform this action.',
-                    code: 403
                   }
                 }
               }
@@ -448,7 +442,7 @@ const options: OAS3Options = {
               }
             },
             401: {
-              description: 'Unauthorized.',
+              description: 'Unauthorized. Not logged in.',
               content: {
                 'application/json': {
                   example: {
@@ -461,26 +455,41 @@ const options: OAS3Options = {
                 }
               }
             },
-            403: {
-              description: 'Forbidden. User cannot unfollow themself.',
-              content: {
-                'application/json': {
-                  example: {
-                    message: 'Forbidden. You are not allowed to perform this action.',
-                    code: 403
-                  }
-                }
-              }
-            },
+            // 403: {
+            //   description: 'Forbidden. User cannot unfollow themself.',
+            //   content: {
+            //     'application/json': {
+            //       example: {
+            //         message: 'Forbidden. You are not allowed to perform this action.',
+            //         code: 403
+            //       }
+            //     }
+            //   }
+            // },
             409: {
               description: 'Not Following',
               content: {
                 'application/json': {
-                  example: {
-                    message: 'Conflict',
-                    code: 409,
-                    errors: {
-                      error_code: 'NOT_FOLLOWING'
+                  examples: {
+                    alreadyUnfollow: {
+                      summary: 'User is already not following the target user',
+                      value: {
+                        message: 'Conflict',
+                        code: 409,
+                        errors: {
+                          error_code: 'NOT_FOLLOWING'
+                        }
+                      }
+                    },
+                    selfUnfollowing: {
+                      summary: 'User cannot unfollow themselves',
+                      value: {
+                        message: 'Conflict',
+                        code: 409,
+                        errors: {
+                          error_code: 'CANNOT_UNFOLLOW_YOURSELF'
+                        }
+                      }
                     }
                   }
                 }
@@ -508,7 +517,7 @@ const options: OAS3Options = {
       // POST
       '/api/post/': {
         get: {
-          summary: 'Get all posts',
+          summary: 'Get all posts from public feed and followed users.',
           description: 'Get all posts.',
           tags: ['Post'],
           security: [
@@ -1057,17 +1066,37 @@ const options: OAS3Options = {
                   example: [
                     {
                       id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
-                      userId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
-                      postId: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5',
-                      type: 'LIKE',
-                      createdAt: '2021-03-22T15:25:43.000Z'
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'Hello World!',
+                      images: [],
+                      createdAt: '2021-03-22T15:25:43.000Z',
+                      parentId: null,
+                      author: {
+                        id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                        name: 'Johnny Doe',
+                        username: 'johndoe',
+                        image: 'user.png'
+                      },
+                      qtyComments: 23,
+                      qtyLikes: 19,
+                      qtyRetweets: 4
                     },
                     {
                       id: '1e0238cb-ff48-4128-9406-a52d83a06679',
-                      userId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
-                      postId: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5',
-                      type: 'LIKE',
-                      createdAt: '2021-03-22T15:27:34.000Z'
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'This is a test post!',
+                      images: [],
+                      createdAt: '2021-03-22T15:27:34.000Z',
+                      parentId: null,
+                      author: {
+                        id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                        name: 'Johnny Doe',
+                        username: 'johndoe',
+                        image: 'user.png'
+                      },
+                      qtyComments: 23,
+                      qtyLikes: 19,
+                      qtyRetweets: 4
                     }
                   ]
                 }
@@ -1126,10 +1155,37 @@ const options: OAS3Options = {
                   example: [
                     {
                       id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
-                      userId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
-                      postId: '143c4f2f-69f9-4caa-b18e-8dc7dc56f5e5',
-                      type: 'RETWEET',
-                      createdAt: '2021-03-22T15:25:43.000Z'
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'Hello World!',
+                      images: [],
+                      createdAt: '2021-03-22T15:25:43.000Z',
+                      parentId: null,
+                      author: {
+                        id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                        name: 'Johnny Doe',
+                        username: 'johndoe',
+                        image: 'user.png'
+                      },
+                      qtyComments: 23,
+                      qtyLikes: 19,
+                      qtyRetweets: 4
+                    },
+                    {
+                      id: '1e0238cb-ff48-4128-9406-a52d83a06679',
+                      authorId: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                      content: 'This is a test post!',
+                      images: [],
+                      createdAt: '2021-03-22T15:27:34.000Z',
+                      parentId: null,
+                      author: {
+                        id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                        name: 'Johnny Doe',
+                        username: 'johndoe',
+                        image: 'user.png'
+                      },
+                      qtyComments: 23,
+                      qtyLikes: 19,
+                      qtyRetweets: 4
                     }
                   ]
                 }
@@ -1165,7 +1221,7 @@ const options: OAS3Options = {
       '/api/reaction/{post_id}': {
         post: {
           summary: 'Create a reaction on a post',
-          description: 'Create a reaction on a post',
+          description: 'Create a reaction on a post. It can be either a like or retweet.',
           tags: ['Reaction'],
           security: [
             {
@@ -1185,8 +1241,9 @@ const options: OAS3Options = {
             required: true,
             content: {
               'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/CreateReactionInputDTO'
+                schema: {},
+                example: {
+                  type: 'LIKE'
                 }
               }
             }
@@ -1196,9 +1253,7 @@ const options: OAS3Options = {
               description: 'Reaction created successfully.',
               content: {
                 'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/ReactionDTO'
-                  },
+                  schema: {},
                   example: {
                     post_id: '06ea1868-7286-42c2-a7c3-bfa7d051495f'
                   }
@@ -1292,23 +1347,19 @@ const options: OAS3Options = {
             }
           ],
           requestBody: {
-            required: true,
+            required: false,
             content: {
               'application/json': {
-                schema: {
-                  type: 'reactionType'
+                schema: {},
+                example: {
+                  type: 'LIKE'
                 }
               }
             }
           },
           responses: {
             204: {
-              description: 'Reaction deleted successfully.',
-              content: {
-                'application/json': {
-                  example: 'Deleted reaction'
-                }
-              }
+              description: 'Reaction deleted successfully.'
             },
             400: {
               description: 'Validation Error',
@@ -1518,8 +1569,9 @@ const options: OAS3Options = {
                 'application/json': {
                   example: {
                     id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
-                    name: 'john doe',
-                    createdAt: '2021-03-22T15:25:43.000Z'
+                    name: 'Johnny Doe',
+                    username: 'johndoe',
+                    profileImage: 'user.png'
                   }
                 }
               }
@@ -1566,8 +1618,23 @@ const options: OAS3Options = {
                 'application/json': {
                   example: {
                     id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
-                    name: 'johndoe',
-                    createdAt: '2021-03-22T15:25:43.000Z'
+                    name: 'Johnny Doe',
+                    username: 'johndoe',
+                    profileImage: 'user.png'
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Validation Error',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Validation Error',
+                    code: 400,
+                    errors: {
+                      error_code: 'INVALID_UUID'
+                    }
                   }
                 }
               }
@@ -1592,6 +1659,64 @@ const options: OAS3Options = {
                 'application/json': {
                   example: {
                     message: 'Not found. Couldn\'t find user'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      '/api/user/privacy': {
+        post: {
+          summary: 'Change privacy settings',
+          tags: ['User'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {},
+                example: {
+                  privacy: true
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: 'Privacy settings changed successfully.',
+              content: {
+                'application/json': {
+                  example: {
+                    id: '06ea1868-7286-42c2-a7c3-bfa7d051495f',
+                    name: 'Johnny Doe',
+                    username: 'johndoe',
+                    profileImage: 'user.png',
+                    isPrivate: true
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Validation Error',
+              content: {
+                'application/json': {
+                  example: 'INVALID_PRIVACY_SETTING'
+                }
+              }
+            },
+            401: {
+              description: 'Unauthorized.',
+              content: {
+                'application/json': {
+                  example: {
+                    message: 'Unauthorized. You must login to access this content.',
+                    code: 401,
+                    errors: {}
                   }
                 }
               }

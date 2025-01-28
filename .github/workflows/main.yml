@@ -5,6 +5,7 @@ on:
     branches:
       - tasks/11-unit-tests
       - tasks/12-deployment
+      - tasks/R12-deployment
   pull_request:
 
 jobs:

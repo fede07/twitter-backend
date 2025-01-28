@@ -6,10 +6,6 @@ import { validate } from 'class-validator'
 import { generatePresignedUrl } from '@utils/s3-utils'
 import * as uuidUtils from 'uuid'
 
-jest.mock('class-validator', () => ({
-  validate: jest.fn()
-}))
-
 jest.mock('@utils/s3-utils', () => ({
   generatePresignedUrl: jest.fn(),
   getPublicUrl: jest.fn()
@@ -223,7 +219,7 @@ describe('PostService', () => {
         content: 'mockContent',
         images: []
       }
-      jest.spyOn({ validate }, 'validate').mockRejectedValue(new Error('validation error'))
+      jest.spyOn(uuidUtils, 'validate').mockReturnValue(false)
       await expect(postService.createPost(userId, postData)).rejects.toThrow(Error)
     })
 
@@ -234,6 +230,7 @@ describe('PostService', () => {
         content: 'mockContent',
         images: []
       }
+      jest.spyOn(uuidUtils, 'validate').mockReturnValue(false)
       await expect(postService.createPost(userId, postData)).rejects.toThrow(Error)
     })
   })
@@ -273,6 +270,8 @@ describe('PostService', () => {
       }
 
       jest.spyOn({ validate }, 'validate').mockResolvedValue([])
+      jest.spyOn(uuidUtils, 'validate').mockReturnValue(true)
+
       postRepository.create.mockResolvedValue(createdComment)
       const result = await postService.createPost(userId, commentData, postId)
       expect(result).toEqual(createdPostPresignedUrls)

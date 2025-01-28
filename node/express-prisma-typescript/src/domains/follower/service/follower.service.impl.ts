@@ -20,7 +20,7 @@ export class FollowerServiceImpl implements FollowerService {
 
   async unfollowUser (followedId: string, followerId: string): Promise<void> {
     if (!isUuid(followedId) || !isUuid(followerId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
-    if (followedId === followerId) throw new ConflictException('CANNOT_FOLLOW_YOURSELF')
+    if (followedId === followerId) throw new ConflictException('CANNOT_UNFOLLOW_YOURSELF')
     if (await this.userRepository.getById(followedId) === null) throw new NotFoundException('user')
     if (!(await this.isFollowing(followedId, followerId))) throw new ConflictException('NOT_FOLLOWING')
     await this.followerRepository.unfollowUser(followedId, followerId)

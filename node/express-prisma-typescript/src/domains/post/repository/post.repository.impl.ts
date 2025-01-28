@@ -1,10 +1,8 @@
 import { PrismaClient } from '@prisma/client'
-
 import { CursorPagination } from '@types'
-
 import { PostRepository } from '.'
 import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
-import { UserViewDTO } from '@domains/user/dto'
+import { mapPostToExtendedPostDTO } from '@utils'
 
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
@@ -50,7 +48,7 @@ export class PostRepositoryImpl implements PostRepository {
     })
 
     const postDTOs = posts.map((post) => new PostDTO(post))
-    return await Promise.all(postDTOs.map(async (post) => await this.mapPostToExtendedPostDTO(post)))
+    return await Promise.all(postDTOs.map(async (post) => await mapPostToExtendedPostDTO(post)))
   }
 
   async delete (postId: string): Promise<void> {
@@ -93,7 +91,7 @@ export class PostRepositoryImpl implements PostRepository {
         comments: true
       }
     })
-    return await Promise.all(posts.map(async (post) => await this.mapPostToExtendedPostDTO(post)))
+    return await Promise.all(posts.map(async (post) => await mapPostToExtendedPostDTO(post)))
   }
 
   async getAuthorId (postId: string): Promise<string> {
@@ -144,7 +142,7 @@ export class PostRepositoryImpl implements PostRepository {
       take: options.limit ? (options.before ? -options.limit : options.limit) : undefined
     })
 
-    const extendedComments = comments.map(async (comment) => await this.mapPostToExtendedPostDTO(comment))
+    const extendedComments = comments.map(async (comment) => await mapPostToExtendedPostDTO(comment))
 
     const resolvedExtendedComments = await Promise.all(extendedComments)
     resolvedExtendedComments.sort((a, b) => {
@@ -155,54 +153,5 @@ export class PostRepositoryImpl implements PostRepository {
     })
 
     return resolvedExtendedComments
-  }
-
-  private async mapPostToExtendedPostDTO (post: PostDTO): Promise<ExtendedPostDTO> {
-    const user = await this.db.user.findUnique({
-      where: {
-        id: post.authorId
-      },
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        profileImage: true
-      }
-    })
-
-    if (!user) {
-      throw new Error('User not found')
-    }
-
-    const author = new UserViewDTO(user)
-
-    const qtyLikes = await this.db.reaction.count({
-      where: {
-        postId: post.id,
-        type: 'LIKE'
-      }
-    })
-    const qtyRetweets = await this.db.reaction.count({
-      where: {
-        postId: post.id,
-        type: 'RETWEET'
-      }
-    })
-    console.log('qtyComments: ')
-    console.log('parent: ', post.parentId)
-    const qtyComments = await this.db.post.count({
-      where: {
-        parentId: post.id,
-        deletedAt: null
-      }
-    })
-
-    return new ExtendedPostDTO({
-      ...post,
-      author,
-      qtyLikes,
-      qtyRetweets,
-      qtyComments
-    })
   }
 }

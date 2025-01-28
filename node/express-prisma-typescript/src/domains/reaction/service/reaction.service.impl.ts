@@ -3,7 +3,9 @@ import { ReactionService } from '@domains/reaction/service/reaction.service'
 import { UserRepository } from '@domains/user/repository'
 import { PostRepository } from '@domains/post/repository'
 import { Reaction, ReactionType } from '@prisma/client'
-import { ConflictException, NotFoundException } from '@utils'
+import { ConflictException, NotFoundException, ValidationException } from '@utils'
+import { ExtendedPostDTO } from '@domains/post/dto'
+import { validate as isUuid } from 'uuid'
 
 export class ReactionServiceImpl implements ReactionService {
   constructor (
@@ -32,7 +34,7 @@ export class ReactionServiceImpl implements ReactionService {
     return await this.reactionRepository.create(postId, userId, type)
   }
 
-  async getReactionsByUserId (userId: string, reactionType: ReactionType): Promise<Reaction[]> {
+  async getReactionsByUserId (userId: string, reactionType: ReactionType): Promise<ExtendedPostDTO[]> {
     const user = await this.userRepository.getById(userId)
     if (!user) {
       throw new NotFoundException('user')
@@ -42,7 +44,9 @@ export class ReactionServiceImpl implements ReactionService {
 
   async deleteReaction (postId: string, userId: string, reactionType: ReactionType): Promise<void> {
     if (!postId) throw new NotFoundException('postId')
+    if (!isUuid(postId)) { throw new ValidationException([{ message: 'INVALID_UUID' }]) }
     if (!userId) throw new NotFoundException('userId')
+    if (!isUuid(userId)) { throw new ValidationException([{ message: 'INVALID_UUID' }]) }
     if (!reactionType) throw new NotFoundException('reactionType')
     if (reactionType === ReactionType.LIKE) {
       const isLiked = await this.reactionRepository.isLiked(postId, userId)

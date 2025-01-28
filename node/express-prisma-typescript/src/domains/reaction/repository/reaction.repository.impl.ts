@@ -1,8 +1,11 @@
 import { PrismaClient, Reaction, ReactionType } from '@prisma/client'
 import { ReactionRepository } from '@domains/reaction/repository/reaction.repository'
+import { ExtendedPostDTO } from '@domains/post/dto'
+import { mapPostToExtendedPostDTO } from '@utils'
 
 export class ReactionRepositoryImpl implements ReactionRepository {
-  constructor (private readonly db: PrismaClient) {}
+  constructor (private readonly db: PrismaClient) {
+  }
 
   async create (postId: string, userId: string, reactionType: ReactionType): Promise<Reaction> {
     return await this.db.reaction.create({
@@ -14,13 +17,23 @@ export class ReactionRepositoryImpl implements ReactionRepository {
     })
   }
 
-  async getByUserId (userId: string, reactionType: ReactionType): Promise<Reaction[]> {
-    return await this.db.reaction.findMany({
+  async getByUserId (userId: string, reactionType: ReactionType): Promise<ExtendedPostDTO[]> {
+    const posts = await this.db.post.findMany({
       where: {
-        userId,
-        type: reactionType
+        Reaction: {
+          some: {
+            userId,
+            type: reactionType
+          }
+        }
+      },
+      include: {
+        author: true,
+        Reaction: true
       }
     })
+
+    return await Promise.all(posts.map(async (post) => await mapPostToExtendedPostDTO(post)))
   }
 
   async delete (postId: string, userId: string, type: ReactionType): Promise<void> {

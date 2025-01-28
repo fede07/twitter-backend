@@ -73,7 +73,7 @@ userRouter.post('/privacy', async (req: Request, res: Response) => {
   const { privacy } = req.body
 
   if (privacy !== false && privacy !== true) {
-    return res.status(HttpStatus.BAD_REQUEST).send('INVALID_PRIVACY')
+    return res.status(HttpStatus.BAD_REQUEST).send('INVALID_PRIVACY_SETTING')
   }
 
   try {
