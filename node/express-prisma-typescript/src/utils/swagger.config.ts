@@ -1759,6 +1759,7 @@ const options: OAS3Options = {
       '/api/user/privacy': {
         post: {
           summary: 'Change privacy settings',
+          description: "Change privacy settings for the logged-in user. Use 'true' to enable and 'false' to disable.",
           tags: ['User'],
           security: [
             {

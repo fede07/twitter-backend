@@ -21,13 +21,29 @@ export class PostRepositoryImpl implements PostRepository {
   async getAllByDatePaginated (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
-        author: {
-          followers: {
-            some: {
-              followerId: userId
+        OR: [
+          {
+            author: {
+              followers: {
+                some: {
+                  followerId: userId
+                }
+              }
+            }
+          },
+          {
+            author: {
+              isPrivate: false
             }
           }
-        },
+        ],
+        AND: [
+          {
+            authorId: {
+              not: userId
+            }
+          }
+        ],
         deletedAt: null
       },
       include: {
