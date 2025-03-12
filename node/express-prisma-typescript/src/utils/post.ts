@@ -11,7 +11,12 @@ export async function mapPostToExtendedPostDTO (post: PostDTO): Promise<Extended
       id: true,
       username: true,
       name: true,
-      profileImage: true
+      profilePicture: true,
+      createdAt: true,
+      isPrivate: true,
+      followers: true,
+      following: true,
+      posts: true
     }
   })
 

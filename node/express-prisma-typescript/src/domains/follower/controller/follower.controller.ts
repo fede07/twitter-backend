@@ -13,7 +13,7 @@ export const followerRouter = Router()
 
 const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
 
-followerRouter.post('/follow/:user_id', async (req: Request, res: Response) => {
+followerRouter.post('/:user_id', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const { user_id } = req.params
@@ -25,7 +25,7 @@ followerRouter.post('/follow/:user_id', async (req: Request, res: Response) => {
   })
 })
 
-followerRouter.post('/unfollow/:user_id', async (req: Request, res: Response) => {
+followerRouter.delete('/:user_id', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const { user_id } = req.params

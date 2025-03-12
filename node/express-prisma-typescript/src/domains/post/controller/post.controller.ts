@@ -14,7 +14,11 @@ import { UserRepositoryImpl } from '@domains/user/repository'
 export const postRouter = Router()
 
 // Use dependency injection
-const service: PostService = new PostServiceImpl(new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
+const service: PostService = new PostServiceImpl(
+  new PostRepositoryImpl(db),
+  new FollowerRepositoryImpl(db),
+  new UserRepositoryImpl(db)
+)
 
 postRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
@@ -23,18 +27,6 @@ postRouter.get('/', async (req: Request, res: Response) => {
   const posts = await service.getLatestPosts(userId, { limit: Number(limit), before, after })
 
   return res.status(HttpStatus.OK).json(posts)
-})
-
-postRouter.get('/:postId', async (req: Request, res: Response) => {
-  const { userId } = res.locals.context
-  const { postId } = req.params
-
-  try {
-    const post = await service.getPost(userId, postId)
-    return res.status(HttpStatus.OK).json(post)
-  } catch {
-    return res.status(HttpStatus.NOT_FOUND).send('Not found')
-  }
 })
 
 postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
@@ -58,6 +50,34 @@ postRouter.get('/comments/by_user/:userId', async (req: Request, res: Response) 
     return res.status(HttpStatus.OK).json(posts)
   } catch {
     return res.status(HttpStatus.NOT_FOUND).send('Not found')
+  }
+})
+
+postRouter.get('/comment/by_post/:postId', async (req: Request, res: Response) => {
+  const { postId } = req.params
+  const { limit, before, after } = req.query as Record<string, string>
+
+  console.log('POST 1 CALLED')
+
+  try {
+    const posts = await service.getCommentsByPostId(postId, { limit: Number(limit), before, after })
+    return res.status(HttpStatus.OK).json(posts)
+  } catch {
+    return res.status(HttpStatus.NOT_FOUND).send('Not found')
+  }
+})
+
+postRouter.get('/following', async (req: Request, res: Response) => {
+  try {
+    const { userId } = res.locals.context
+    const { limit, before, after } = req.query as Record<string, string>
+
+    const posts = await service.getPostsByFollowed(userId, { limit: Number(limit), before, after })
+
+    return res.status(HttpStatus.OK).json(posts)
+  } catch (error) {
+    console.log(error)
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
   }
 })
 
@@ -87,4 +107,21 @@ postRouter.delete('/:postId', async (req: Request, res: Response) => {
   await service.deletePost(userId, postId)
 
   return res.status(HttpStatus.OK).send(`Deleted post ${postId}`)
+})
+
+postRouter.get('/test', async (req: Request, res: Response) => {
+  try {
+    return res.status(HttpStatus.OK).json('hola:)')
+  } catch (error) {
+    console.log(error)
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal server error')
+  }
+})
+
+postRouter.get('/:postId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { postId } = req.params
+
+  const post = await service.getPost(userId, postId)
+  return res.status(HttpStatus.OK).json(post)
 })

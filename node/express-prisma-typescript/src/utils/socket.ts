@@ -7,19 +7,31 @@ import { MessageRepositoryImpl } from '@domains/message/repository'
 import { FollowerServiceImpl } from '@domains/follower/service/follower.service.impl'
 import { FollowerRepositoryImpl } from '@domains/follower/repository/follower.repository.impl'
 import { UserRepositoryImpl } from '@domains/user/repository'
+import { ChatServiceImpl } from '@domains/chat/service/chat.service.impl'
+import ChatRepositoryImpl from '@domains/chat/repository/chat.repository.impl'
+import { getUsersFromRoomId } from '@utils/chat'
 
 interface AuthenticatedSocket extends Socket {
   userId?: string
 }
 
-const messageService = new MessageServiceImpl(new MessageRepositoryImpl(db))
+const chatService = new ChatServiceImpl(new ChatRepositoryImpl(db))
+const messageService = new MessageServiceImpl(new MessageRepositoryImpl(db), new ChatRepositoryImpl(db))
 const followerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
 const setupSocket = (httpServer: HttpServer): void => {
-  const io = new Server(httpServer)
+  const io = new Server(httpServer, {
+    cors: {
+      origin: 'http://localhost:3000',
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Authorization'],
+      credentials: true
+    }
+  })
 
   io.use((socket: AuthenticatedSocket, next) => {
-    const token = socket.handshake.headers.authorization
+    const token = socket.handshake.auth?.token
     if (!token) {
+      console.log('MISSING_TOKEN')
       next(new Error('MISSING_TOKEN'))
       return
     }
@@ -39,10 +51,11 @@ const setupSocket = (httpServer: HttpServer): void => {
     // TODO: VALIDATIONS
 
     socket.on('join-chat', async ({ recipientId }: { recipientId: string }) => {
+      console.log(`User joined chat with ${recipientId}`)
       if (!socket.userId) return
       const follows = await followerService.areBothFollowingEachOther(recipientId, socket.userId)
       if (follows) {
-        const room = [socket.userId, recipientId].sort().join('-')
+        const room = [socket.userId, recipientId].sort().join('_')
         void socket.join(room)
         socket.emit('joined-chat', { roomId: room })
         socket.to(room).emit(socket.userId, ' joined-chat', { roomId: room })
@@ -71,8 +84,16 @@ const setupSocket = (httpServer: HttpServer): void => {
         return
       }
 
-      const user1 = roomId.slice(0, 36)
-      const user2 = roomId.slice(37)
+      const chatId = await chatService.getChatByRoomId(socket.userId, roomId)
+
+      if (!chatId) {
+        await chatService.createChat(socket.userId, roomId)
+      }
+
+      const [user1, user2] = getUsersFromRoomId(roomId)
+
+      // const user1 = roomId.slice(0, 36)
+      // const user2 = roomId.slice(37)
 
       const bothFollowing = await followerService.areBothFollowingEachOther(user1, user2)
 

@@ -19,24 +19,26 @@ datasource db {
 model User {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // Primary Key
 
-  username     String  @unique // Unique constraint
-  name         String? @db.VarChar(35) // Limit display name to 35 characters
-  email        String  @unique // Unique constraint
-  password     String
-  profileImage String?
+  username       String  @unique // Unique constraint
+  name           String? @db.VarChar(35) // Limit display name to 35 characters
+  email          String  @unique // Unique constraint
+  password       String
+  profilePicture String?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Optional value
 
   posts     Post[]
-  follows   Follow[]   @relation(name: "follows")
+  following Follow[]   @relation(name: "following")
   followers Follow[]   @relation(name: "followers")
   isPrivate Boolean    @default(false) // Default value is false
   Reaction  Reaction[]
 
   sentMessages     Message[] @relation(name: "SenderRelation")
   receivedMessages Message[] @relation(name: "RecipientRelation")
+
+  chats Chat[]
 }
 
 model Follow {
@@ -49,8 +51,8 @@ model Follow {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Optional value
 
-  follower User @relation(name: "follows", fields: [followerId], references: [id], onDelete: Cascade) // One to many
-  followed User @relation(name: "followers", fields: [followedId], references: [id], onDelete: Cascade) // One to many
+  followed User @relation(name: "following", fields: [followerId], references: [id], onDelete: Cascade) // One to many
+  follower User @relation(name: "followers", fields: [followedId], references: [id], onDelete: Cascade) // One to many
 }
 
 model Post {
@@ -96,6 +98,7 @@ model Message {
   senderId    String @db.Uuid
   recipientId String @db.Uuid
   roomId      String @db.Text
+  chatId      String @db.Uuid
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -103,4 +106,17 @@ model Message {
 
   sender    User @relation(name: "SenderRelation", fields: [senderId], references: [id], onDelete: Cascade)
   recipient User @relation(name: "RecipientRelation", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  Chat Chat @relation(name: "ChatRelation", fields: [chatId], references: [id])
+}
+
+model Chat {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId    String    @unique @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  participants User[]
+  messages     Message[] @relation(name: "ChatRelation")
 }

@@ -1,6 +1,6 @@
 import { NotFoundException, ValidationException } from '@utils/errors'
 import { OffsetPagination } from 'types'
-import { UserDTO, UserViewDTO } from '../dto'
+import { UserViewDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
 import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils'
@@ -16,7 +16,7 @@ export class UserServiceImpl implements UserService {
     return user
   }
 
-  async getUserRecommendations (userId: any, options: OffsetPagination): Promise<UserDTO[]> {
+  async getUserRecommendations (userId: any, options: OffsetPagination): Promise<UserViewDTO[]> {
     return await this.repository.getRecommendedUsersPaginated(userId, options)
   }
 

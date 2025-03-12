@@ -96,7 +96,16 @@ describe('PostService', () => {
         ...postData,
         userId,
         authorId: userId,
-        createdAt: new Date()
+        createdAt: new Date(),
+        author: {
+          id: userId,
+          name: 'mockAuthorName',
+          username: 'mockUsername',
+          profileImage: 'mockProfileImage'
+        },
+        qtyComments: 0,
+        qtyLikes: 0,
+        qtyRetweets: 0
       }
 
       const presignedUrls = [
@@ -362,7 +371,16 @@ describe('PostService', () => {
         authorId: userId,
         content: 'mockContent',
         images: [],
-        createdAt: new Date()
+        createdAt: new Date(),
+        author: {
+          id: userId,
+          name: 'mockAuthorName',
+          username: 'mockUsername',
+          profileImage: 'mockProfileImage'
+        },
+        qtyComments: 0,
+        qtyLikes: 0,
+        qtyRetweets: 0
       }
 
       postRepository.getById.mockResolvedValue(mockPost)
@@ -388,7 +406,16 @@ describe('PostService', () => {
         authorId: 'mockAuthorId',
         content: 'mockContent',
         images: [],
-        createdAt: new Date()
+        createdAt: new Date(),
+        author: {
+          id: 'mockAuthorId',
+          name: 'mockAuthorName',
+          username: 'mockUsername',
+          profileImage: 'mockProfileImage'
+        },
+        qtyComments: 0,
+        qtyLikes: 0,
+        qtyRetweets: 0
       }
 
       postRepository.getById.mockResolvedValue(mockPost)
@@ -409,10 +436,19 @@ describe('PostService', () => {
       const postId = 'mockPostId'
       const mockPost = {
         id: postId,
-        authorId: userId,
+        authorId: 'mockAuthorId',
         content: 'mockContent',
         images: [],
-        createdAt: new Date()
+        createdAt: new Date(),
+        author: {
+          id: 'mockAuthorId',
+          name: 'mockAuthorName',
+          username: 'mockUsername',
+          profileImage: 'mockProfileImage'
+        },
+        qtyComments: 0,
+        qtyLikes: 0,
+        qtyRetweets: 0
       }
 
       postRepository.getById.mockResolvedValue(mockPost)
@@ -438,7 +474,16 @@ describe('PostService', () => {
         authorId: 'mockAuthorId',
         content: 'mockContent',
         images: [],
-        createdAt: new Date()
+        createdAt: new Date(),
+        author: {
+          id: 'mockAuthorId',
+          name: 'mockAuthorName',
+          username: 'mockUsername',
+          profileImage: 'mockProfileImage'
+        },
+        qtyComments: 0,
+        qtyLikes: 0,
+        qtyRetweets: 0
       }
 
       postRepository.getById.mockResolvedValue(mockPost)

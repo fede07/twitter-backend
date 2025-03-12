@@ -5,16 +5,33 @@ import { MessageDto, MessageInputDto } from '@domains/message/dto'
 export class MessageRepositoryImpl implements MessageRepository {
   constructor (private readonly db: PrismaClient) {}
 
-  async saveMessage (data: MessageInputDto): Promise<MessageDto> {
+  async saveMessage (data: MessageInputDto, chatId: string): Promise<MessageDto> {
     const message = await this.db.message.create({
       data: {
         text: data.text,
         senderId: data.userId,
         recipientId: data.recipientId,
         roomId: data.roomId,
+        chatId,
         createdAt: new Date()
       }
     })
     return new MessageDto(message)
+  }
+
+  async getUserChatRooms (userId: string): Promise<string[]> {
+    const rooms = await this.db.message.findMany({
+      where: {
+        OR: [
+          { senderId: userId },
+          { recipientId: userId }
+        ]
+      },
+      select: {
+        roomId: true
+      },
+      distinct: ['roomId']
+    })
+    return rooms.map(r => r.roomId)
   }
 }

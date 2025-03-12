@@ -6,7 +6,7 @@ import { ForbiddenException, NotFoundException, ValidationException } from '@uti
 import { CursorPagination } from '@types'
 import { FollowerRepository } from '@domains/follower/repository/follower.repository'
 import { UserRepository } from '@domains/user/repository'
-import { generatePresignedUrl, getPublicUrl } from '@utils/s3-utils'
+import { generatePresignedUrl } from '@utils/s3-utils'
 import { validate as isUuid } from 'uuid'
 
 export class PostServiceImpl implements PostService {
@@ -34,7 +34,7 @@ export class PostServiceImpl implements PostService {
         const key = `users/${userId}/posts/${timestamp}-${fileName}`
         const presignedUrl = await generatePresignedUrl(key, 'image/jpeg')
 
-        console.log('PublicURL', getPublicUrl(key))
+        // console.log('PublicURL', getPublicUrl(key))
 
         imageUrls.push({ fileName, presignedUrl, key })
       }
@@ -55,7 +55,7 @@ export class PostServiceImpl implements PostService {
     await this.repository.delete(postId)
   }
 
-  async getPost (userId: string, postId: string): Promise<PostDTO> {
+  async getPost (userId: string, postId: string): Promise<ExtendedPostDTO> {
     if (!isUuid(postId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     const post = await this.repository.getById(postId)
     if (!post) throw new NotFoundException('post')
@@ -97,6 +97,11 @@ export class PostServiceImpl implements PostService {
   async getAuthorId (postId: string): Promise<string> {
     if (!isUuid(postId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     return await this.repository.getAuthorId(postId)
+  }
+
+  async getPostsByFollowed (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
+    if (!isUuid(userId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
+    return await this.repository.getPostsByFollowed(userId, options)
   }
 
   async canViewPost (userId: string, postId: string): Promise<boolean> {

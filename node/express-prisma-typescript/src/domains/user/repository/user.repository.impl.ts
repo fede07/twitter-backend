@@ -30,7 +30,7 @@ export class UserRepositoryImpl implements UserRepository {
     })
   }
 
-  async getRecommendedUsersPaginated (userId: string, options: OffsetPagination): Promise<UserDTO[]> {
+  async getRecommendedUsersPaginated (userId: string, options: OffsetPagination): Promise<UserViewDTO[]> {
     const followings = await this.db.follow.findMany({
       where: { followerId: userId },
       select: { followedId: true }
@@ -49,7 +49,7 @@ export class UserRepositoryImpl implements UserRepository {
 
     const users = await this.db.user.findMany({
       where: {
-        id: { in: followedByFollowingsIds }
+        id: { in: followedByFollowingsIds, not: userId }
       },
       take: options.limit ? options.limit : undefined,
       skip: options.skip ? options.skip : undefined,
@@ -60,7 +60,7 @@ export class UserRepositoryImpl implements UserRepository {
       ]
     })
 
-    return users.map(user => new UserDTO(user))
+    return users.map(user => new UserViewDTO(user))
   }
 
   async getByEmailOrUsername (email?: string, username?: string): Promise<ExtendedUserDTO | null> {
@@ -110,7 +110,7 @@ export class UserRepositoryImpl implements UserRepository {
         id: userId
       },
       data: {
-        profileImage: imageUrl
+        profilePicture: imageUrl
       }
     })
   }
@@ -127,7 +127,12 @@ export class UserRepositoryImpl implements UserRepository {
         id: true,
         username: true,
         name: true,
-        profileImage: true
+        profilePicture: true,
+        createdAt: true,
+        isPrivate: true,
+        followers: true,
+        following: true,
+        posts: true
       }
     })
     return new UserViewDTO(user)
