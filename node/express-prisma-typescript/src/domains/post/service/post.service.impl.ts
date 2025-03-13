@@ -16,7 +16,7 @@ export class PostServiceImpl implements PostService {
     private readonly userRepository: UserRepository
   ) {}
 
-  async createPost (userId: string, data: CreatePostInputDTO, parentId?: string): Promise<{ post: PostDTO, presignedUrls: Array<{ fileName: string, url: string }> }> {
+  async createPost (userId: string, data: CreatePostInputDTO, parentId?: string): Promise<{ post: PostDTO, images: Array<{ fileName: string, url: string }> }> {
     if (!isUuid(userId)) {
       throw new ValidationException([{ message: 'INVALID_UUID' }])
     }
@@ -34,6 +34,7 @@ export class PostServiceImpl implements PostService {
         const key = `users/${userId}/posts/${timestamp}-${fileName}`
         const presignedUrl = await generatePresignedUrl(key, 'image/jpeg')
 
+        console.log('PresignedURL', presignedUrl)
         // console.log('PublicURL', getPublicUrl(key))
 
         imageUrls.push({ fileName, presignedUrl, key })
@@ -44,7 +45,7 @@ export class PostServiceImpl implements PostService {
 
     const post = await this.repository.create(userId, data, parentId)
 
-    return { post, presignedUrls }
+    return { post, images: presignedUrls }
   }
 
   async deletePost (userId: string, postId: string): Promise<void> {
@@ -78,6 +79,18 @@ export class PostServiceImpl implements PostService {
       }
     }
     return await this.repository.getByAuthorId(authorId)
+  }
+
+  async getPostsByAuthorPaginated (userId: any, authorId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
+    if (!isUuid(authorId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
+    if (userId !== authorId) {
+      const isPrivate = await this.userRepository.isPrivate(authorId)
+      if (isPrivate) {
+        const isFollowing = await this.followerRepository.isFollowing(authorId, userId)
+        if (!isFollowing) throw new ForbiddenException()
+      }
+    }
+    return await this.repository.getPostsByAuthorIdPaginated(authorId, options)
   }
 
   async getCommentByAuthorId (userId: any, authorId: string): Promise<PostDTO[]> {

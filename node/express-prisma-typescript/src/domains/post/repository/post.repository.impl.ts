@@ -117,7 +117,42 @@ export class PostRepositoryImpl implements PostRepository {
         },
         Reaction: true,
         comments: true
-      }
+      },
+      orderBy: [
+        {
+          createdAt: 'desc'
+        }
+      ]
+    })
+    return await Promise.all(posts.map(async (post) => await mapPostToExtendedPostDTO(post)))
+  }
+
+  async getPostsByAuthorIdPaginated (authorId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
+    const posts = await this.db.post.findMany({
+      where: {
+        authorId,
+        deletedAt: null
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            profilePicture: true
+          }
+        },
+        Reaction: true,
+        comments: true
+      },
+      cursor: options.after ? { id: options.after } : options.before ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: [
+        {
+          createdAt: 'desc'
+        }
+      ]
     })
     return await Promise.all(posts.map(async (post) => await mapPostToExtendedPostDTO(post)))
   }
@@ -178,7 +213,15 @@ export class PostRepositoryImpl implements PostRepository {
       },
       cursor: options.after ? { id: options.after } : options.before ? { id: options.before } : undefined,
       skip: options.after ?? options.before ? 1 : undefined,
-      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: [
+        {
+          createdAt: 'desc'
+        },
+        {
+          id: 'asc'
+        }
+      ]
     })
 
     const extendedPosts = posts.map(async (post) => await mapPostToExtendedPostDTO(post))

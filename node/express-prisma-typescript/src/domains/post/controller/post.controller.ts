@@ -32,9 +32,14 @@ postRouter.get('/', async (req: Request, res: Response) => {
 postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { userId: authorId } = req.params
+  const { limit, before, after } = req.query as Record<string, string>
 
   try {
-    const posts = await service.getPostsByAuthor(userId, authorId)
+    const posts = await service.getPostsByAuthorPaginated(userId, authorId, {
+      limit: Number(limit),
+      before,
+      after
+    })
     return res.status(HttpStatus.OK).json(posts)
   } catch {
     return res.status(HttpStatus.NOT_FOUND).send('Not found')

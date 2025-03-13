@@ -7,6 +7,7 @@ export interface PostRepository {
   delete: (postId: string) => Promise<void>
   getById: (postId: string) => Promise<ExtendedPostDTO | null>
   getByAuthorId: (authorId: string) => Promise<ExtendedPostDTO[]>
+  getPostsByAuthorIdPaginated: (authorId: string, options: CursorPagination) => Promise<ExtendedPostDTO[]>
   getAuthorId: (postId: string) => Promise<string>
   getCommentByAuthorId: (authorId: string) => Promise<PostDTO[]>
   getCommentsByPostId: (postId: string, options: CursorPagination) => Promise<ExtendedPostDTO[]>
