@@ -117,7 +117,7 @@ const setupSocket = (httpServer: HttpServer): void => {
         recipientId,
         roomId
       })
-      io.to(roomId).emit('new-message', savedMessage.text)
+      io.to(roomId).emit('new-message', savedMessage)
     })
 
     socket.on('disconnect', () => {
