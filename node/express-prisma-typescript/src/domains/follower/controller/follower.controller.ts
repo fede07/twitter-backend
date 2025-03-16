@@ -13,12 +13,12 @@ export const followerRouter = Router()
 
 const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
 
-// followerRouter.get('/:user_id', async (req: Request, res: Response) => {
-//   const { userId } = res.locals.context
-//   const { user_id } = req.params
-//
-//   await service.
-// })
+followerRouter.get('/mutual', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const mutualFollowers = await service.getMutualFollowers(userId)
+
+  return res.status(HttpStatus.OK).json(mutualFollowers)
+})
 
 followerRouter.post('/:user_id', async (req: Request, res: Response) => {
   const { userId } = res.locals.context

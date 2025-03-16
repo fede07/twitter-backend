@@ -13,7 +13,7 @@ export class FollowerServiceImpl implements FollowerService {
   async followUser (followedId: string, followerId: string): Promise<void> {
     if (!isUuid(followedId) || !isUuid(followerId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     if (followedId === followerId) throw new ConflictException('CANNOT_FOLLOW_YOURSELF')
-    if (await this.userRepository.getById(followedId) === null) throw new NotFoundException('user')
+    if ((await this.userRepository.getById(followedId)) === null) throw new NotFoundException('user')
     if (await this.isFollowing(followedId, followerId)) throw new ConflictException('ALREADY_FOLLOWING')
     await this.followerRepository.followUser(followedId, followerId)
   }
@@ -21,7 +21,7 @@ export class FollowerServiceImpl implements FollowerService {
   async unfollowUser (followedId: string, followerId: string): Promise<void> {
     if (!isUuid(followedId) || !isUuid(followerId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
     if (followedId === followerId) throw new ConflictException('CANNOT_UNFOLLOW_YOURSELF')
-    if (await this.userRepository.getById(followedId) === null) throw new NotFoundException('user')
+    if ((await this.userRepository.getById(followedId)) === null) throw new NotFoundException('user')
     if (!(await this.isFollowing(followedId, followerId))) throw new ConflictException('NOT_FOLLOWING')
     await this.followerRepository.unfollowUser(followedId, followerId)
   }
@@ -34,5 +34,9 @@ export class FollowerServiceImpl implements FollowerService {
     const isFollowing = await this.isFollowing(followedId, followerId)
     const areFollowingEachOther = await this.isFollowing(followerId, followedId)
     return isFollowing && areFollowingEachOther
+  }
+
+  async getMutualFollowers (user: string): Promise<string[]> {
+    return await this.followerRepository.getMutualFollowers(user)
   }
 }

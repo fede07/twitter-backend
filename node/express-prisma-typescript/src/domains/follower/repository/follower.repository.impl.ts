@@ -41,4 +41,33 @@ export class FollowerRepositoryImpl implements FollowerRepository {
     })
     return follow !== null
   }
+
+  async getMutualFollowers (userId: string): Promise<string[]> {
+    const mutualFollowers = await this.db.follow.findMany({
+      where: {
+        followerId: userId // El usuario sigue alguna persona ...
+      },
+      select: {
+        followedId: true // Seleccionamos a quienes sigue
+      }
+    })
+
+    const followedIds = mutualFollowers.map((follow) => follow.followedId)
+
+    // Ahora filtramos por la relación inversa
+    const result = await this.db.follow.findMany({
+      where: {
+        followerId: {
+          in: followedIds // Ellos deben seguir también al usuario original
+        },
+        followedId: userId // Y el usuario debe también estar seguido por ellos
+      },
+      select: {
+        followerId: true // Queremos los seguidores mutuos
+      }
+    })
+
+    // Retornamos el ID de los mutual followers
+    return result.map((follow) => follow.followerId)
+  }
 }
