@@ -13,6 +13,13 @@ export const followerRouter = Router()
 
 const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
 
+// followerRouter.get('/:user_id', async (req: Request, res: Response) => {
+//   const { userId } = res.locals.context
+//   const { user_id } = req.params
+//
+//   await service.
+// })
+
 followerRouter.post('/:user_id', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   // eslint-disable-next-line @typescript-eslint/naming-convention

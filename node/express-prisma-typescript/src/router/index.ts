@@ -23,4 +23,4 @@ router.use('/comment', withAuth, commentRouter)
 router.use('/message', withAuth, messageRouter)
 router.use('/chat', withAuth, chatRouter)
 
-console.log(postRouter.stack.map(layer => layer.route?.path))
+// console.log(reactionRouter.stack.map(layer => layer.route?.path))

@@ -20,6 +20,7 @@ const messageService = new MessageServiceImpl(new MessageRepositoryImpl(db), new
 const followerService = new FollowerServiceImpl(new FollowerRepositoryImpl(db), new UserRepositoryImpl(db))
 const setupSocket = (httpServer: HttpServer): void => {
   const io = new Server(httpServer, {
+    // TODO: add env.variable
     cors: {
       origin: 'http://localhost:3000',
       methods: ['GET', 'POST'],

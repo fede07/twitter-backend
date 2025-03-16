@@ -11,7 +11,17 @@ export const messageRouter = Router()
 
 const service: MessageService = new MessageServiceImpl(new MessageRepositoryImpl(db), new ChatRepositoryImpl(db))
 
-messageRouter.get('/chatrooms', async (req: Request, res: Response) => {
+messageRouter.get('/:chatroomId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const chatroomId = req.params.chatroomId
+  const { limit, before, after } = req.query as Record<string, string>
+
+  const history = await service.getChatMessages(chatroomId, { limit: Number(limit), before, after })
+
+  return res.status(HttpStatus.OK).json(history)
+})
+
+messageRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const userChatRooms = await service.getUserChatRooms(userId)
   return res.status(HttpStatus.OK).json(userChatRooms)

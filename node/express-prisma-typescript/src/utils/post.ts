@@ -26,6 +26,12 @@ export async function mapPostToExtendedPostDTO (post: PostDTO): Promise<Extended
 
   const author = new UserViewDTO(user)
 
+  const reactions = await db.reaction.findMany({
+    where: {
+      postId: post.id
+    }
+  })
+
   const qtyLikes = await db.reaction.count({
     where: {
       postId: post.id,
@@ -48,6 +54,7 @@ export async function mapPostToExtendedPostDTO (post: PostDTO): Promise<Extended
   return new ExtendedPostDTO({
     ...post,
     author,
+    reactions,
     qtyLikes,
     qtyRetweets,
     qtyComments

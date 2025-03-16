@@ -1,7 +1,7 @@
 import { SignupInputDTO } from '@domains/auth/dto'
 import { PrismaClient } from '@prisma/client'
 import { OffsetPagination } from '@types'
-import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto'
+import { ExtendedUserDTO, UserDTO, UserFullDTO, UserViewDTO } from '../dto'
 import { UserRepository } from './user.repository'
 
 export class UserRepositoryImpl implements UserRepository {
@@ -13,13 +13,18 @@ export class UserRepositoryImpl implements UserRepository {
     }).then(user => new UserDTO(user))
   }
 
-  async getById (userId: string): Promise<UserViewDTO | null> {
+  async getById (userId: string): Promise<UserFullDTO | null> {
     const user = await this.db.user.findUnique({
       where: {
         id: userId
+      },
+      include: {
+        posts: true,
+        followers: true,
+        following: true
       }
     })
-    return user ? new UserViewDTO(user) : null
+    return user ? new UserFullDTO(user) : null
   }
 
   async delete (userId: any): Promise<void> {
@@ -49,7 +54,7 @@ export class UserRepositoryImpl implements UserRepository {
 
     const users = await this.db.user.findMany({
       where: {
-        id: { in: followedByFollowingsIds, not: userId }
+        id: { in: followedByFollowingsIds, not: userId, notIn: followingsIds }
       },
       take: options.limit ? options.limit : undefined,
       skip: options.skip ? options.skip : undefined,

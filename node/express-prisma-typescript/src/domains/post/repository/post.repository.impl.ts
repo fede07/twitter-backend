@@ -47,7 +47,7 @@ export class PostRepositoryImpl implements PostRepository {
         deletedAt: null
       },
       include: {
-        Reaction: true,
+        reactions: true,
         comments: true
       },
       cursor: options.after ? { id: options.after } : options.before ? { id: options.before } : undefined,
@@ -93,7 +93,7 @@ export class PostRepositoryImpl implements PostRepository {
             profilePicture: true
           }
         },
-        Reaction: true,
+        reactions: true,
         comments: true
       }
     })
@@ -115,7 +115,7 @@ export class PostRepositoryImpl implements PostRepository {
             profilePicture: true
           }
         },
-        Reaction: true,
+        reactions: true,
         comments: true
       },
       orderBy: [
@@ -142,7 +142,7 @@ export class PostRepositoryImpl implements PostRepository {
             profilePicture: true
           }
         },
-        Reaction: true,
+        reactions: true,
         comments: true
       },
       cursor: options.after ? { id: options.after } : options.before ? { id: options.before } : undefined,
@@ -208,7 +208,7 @@ export class PostRepositoryImpl implements PostRepository {
             profilePicture: true
           }
         },
-        Reaction: true,
+        reactions: true,
         comments: true
       },
       cursor: options.after ? { id: options.after } : options.before ? { id: options.before } : undefined,
@@ -243,7 +243,7 @@ export class PostRepositoryImpl implements PostRepository {
             profilePicture: true
           }
         },
-        Reaction: true,
+        reactions: true,
         comments: true
       },
       cursor: options.after ? { id: options.after } : options.before ? { id: options.before } : undefined,

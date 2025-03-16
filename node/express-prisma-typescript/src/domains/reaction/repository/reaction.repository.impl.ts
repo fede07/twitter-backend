@@ -20,7 +20,7 @@ export class ReactionRepositoryImpl implements ReactionRepository {
   async getByUserId (userId: string, reactionType: ReactionType): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
-        Reaction: {
+        reactions: {
           some: {
             userId,
             type: reactionType
@@ -29,7 +29,7 @@ export class ReactionRepositoryImpl implements ReactionRepository {
       },
       include: {
         author: true,
-        Reaction: true
+        reactions: true
       }
     })
 

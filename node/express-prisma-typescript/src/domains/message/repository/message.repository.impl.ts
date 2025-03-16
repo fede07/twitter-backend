@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { MessageRepository } from './message.repository'
 import { MessageDto, MessageInputDto } from '@domains/message/dto'
+import { CursorPagination } from '@types'
 
 export class MessageRepositoryImpl implements MessageRepository {
   constructor (private readonly db: PrismaClient) {}
@@ -33,5 +34,22 @@ export class MessageRepositoryImpl implements MessageRepository {
       distinct: ['roomId']
     })
     return rooms.map(r => r.roomId)
+  }
+
+  async getChatMessages (roomId: string, options: CursorPagination): Promise<MessageDto[]> {
+    const messages = await this.db.message.findMany({
+      where: {
+        roomId
+      },
+      cursor: options.after ? { id: options.after } : options.before ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: [
+        {
+          createdAt: 'asc'
+        }
+      ]
+    })
+    return messages.map(m => new MessageDto(m))
   }
 }

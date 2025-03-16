@@ -1,4 +1,5 @@
 import { PostDTO } from '@domains/post/dto'
+import { FollowDTO } from '@domains/follower/dto'
 
 export class UserDTO {
   constructor (user: UserDTO) {
@@ -52,7 +53,7 @@ export class UserFullDTO extends UserViewDTO {
     this.following = user.following
   }
 
+  followers: FollowDTO[]
+  following: FollowDTO[]
   posts: PostDTO[]
-  followers: UserViewDTO[]
-  following: UserViewDTO[]
 }

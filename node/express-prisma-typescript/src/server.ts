@@ -2,7 +2,7 @@ import express from 'express'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-import { createServer } from 'http';
+import { createServer } from 'http'
 
 import { Constants, NodeEnv, Logger } from '@utils'
 import { router } from '@router'

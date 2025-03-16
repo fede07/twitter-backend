@@ -42,11 +42,23 @@ export class ReactionServiceImpl implements ReactionService {
     return await this.reactionRepository.getByUserId(userId, reactionType)
   }
 
+  async isLiked (postId: string, userId: string): Promise<boolean> {
+    return await this.reactionRepository.isLiked(postId, userId)
+  }
+
+  async isRetweeted (postId: string, userId: string): Promise<boolean> {
+    return await this.reactionRepository.isRetweeted(postId, userId)
+  }
+
   async deleteReaction (postId: string, userId: string, reactionType: ReactionType): Promise<void> {
     if (!postId) throw new NotFoundException('postId')
-    if (!isUuid(postId)) { throw new ValidationException([{ message: 'INVALID_UUID' }]) }
+    if (!isUuid(postId)) {
+      throw new ValidationException([{ message: 'INVALID_UUID' }])
+    }
     if (!userId) throw new NotFoundException('userId')
-    if (!isUuid(userId)) { throw new ValidationException([{ message: 'INVALID_UUID' }]) }
+    if (!isUuid(userId)) {
+      throw new ValidationException([{ message: 'INVALID_UUID' }])
+    }
     if (!reactionType) throw new NotFoundException('reactionType')
     if (reactionType === ReactionType.LIKE) {
       const isLiked = await this.reactionRepository.isLiked(postId, userId)

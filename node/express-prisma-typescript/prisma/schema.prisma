@@ -30,8 +30,8 @@ model User {
   deletedAt DateTime? // Optional value
 
   posts     Post[]
-  following Follow[]   @relation(name: "following")
-  followers Follow[]   @relation(name: "followers")
+  following Follow[]   @relation(name: "UserFollowing")
+  followers Follow[]   @relation(name: "UserFollowers")
   isPrivate Boolean    @default(false) // Default value is false
   Reaction  Reaction[]
 
@@ -51,8 +51,8 @@ model Follow {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Optional value
 
-  followed User @relation(name: "following", fields: [followerId], references: [id], onDelete: Cascade) // One to many
-  follower User @relation(name: "followers", fields: [followedId], references: [id], onDelete: Cascade) // One to many
+  followed User @relation(name: "UserFollowers", fields: [followedId], references: [id], onDelete: Cascade)
+  follower User @relation(name: "UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
 }
 
 model Post {
@@ -70,8 +70,8 @@ model Post {
   parentId String? @db.Uuid // Optional value
   comments Post[]  @relation("CommentRelation") // One to many
 
-  author   User       @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
-  Reaction Reaction[]
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
+  reactions Reaction[]
 }
 
 enum ReactionType {
