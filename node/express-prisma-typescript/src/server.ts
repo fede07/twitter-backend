@@ -44,4 +44,5 @@ app.use(ErrorHandling)
 
 httpServer.listen(Constants.PORT, () => {
   Logger.info(`Server listening on port ${Constants.PORT}`)
+  Logger.info('Cors whitelist: ', Constants.CORS_WHITELIST)
 })
