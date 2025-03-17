@@ -16,7 +16,7 @@ export class PostServiceImpl implements PostService {
     private readonly userRepository: UserRepository
   ) {}
 
-  async createPost (userId: string, data: CreatePostInputDTO): Promise<{ post: PostDTO, images: Array<{ fileName: string, url: string }> }> {
+  async createPost (userId: string, data: CreatePostInputDTO): Promise<{ post: ExtendedPostDTO, images: Array<{ fileName: string, url: string }> }> {
     if (!isUuid(userId)) {
       throw new ValidationException([{ message: 'INVALID_UUID' }])
     }

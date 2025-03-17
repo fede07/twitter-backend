@@ -73,16 +73,11 @@ reactionRouter.get('/retweets/:userId', async (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).json(reactions)
 })
 
-reactionRouter.delete('/:post_id', async (req: Request, res: Response) => {
+reactionRouter.delete('/:reaction_id', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { post_id } = req.params
-  const { type } = req.body
+  const { reaction_id } = req.params
 
-  if (type !== 'LIKE' && type !== 'RETWEET') {
-    return res.status(HttpStatus.BAD_REQUEST).send('Invalid reaction type')
-  }
-
-  await service.deleteReaction(post_id, userId, type)
+  await service.deleteReaction(reaction_id, userId)
   return res.status(HttpStatus.NO_CONTENT).send()
 })

@@ -2,7 +2,7 @@ import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 import { CursorPagination } from '@types'
 
 export interface PostService {
-  createPost: (userId: string, body: CreatePostInputDTO, parentId?: string) => Promise<{ post: PostDTO, images: Array<{ fileName: string, url: string }> }>
+  createPost: (userId: string, body: CreatePostInputDTO, parentId?: string) => Promise<{ post: ExtendedPostDTO, images: Array<{ fileName: string, url: string }> }>
   deletePost: (userId: string, postId: string) => Promise<void>
   getPost: (userId: string, postId: string) => Promise<ExtendedPostDTO>
   getLatestPosts: (userId: string, options: { limit?: number, before?: string, after?: string }) => Promise<ExtendedPostDTO[]>

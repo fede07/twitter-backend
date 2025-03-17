@@ -7,7 +7,7 @@ import { mapPostToExtendedPostDTO } from '@utils'
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
-  async create (userId: string, data: CreatePostInputDTO, parentId?: string): Promise<PostDTO> {
+  async create (userId: string, data: CreatePostInputDTO, parentId?: string): Promise<ExtendedPostDTO> {
     const post = await this.db.post.create({
       data: {
         authorId: userId,
@@ -15,7 +15,8 @@ export class PostRepositoryImpl implements PostRepository {
         parentId
       }
     })
-    return new PostDTO(post)
+
+    return await mapPostToExtendedPostDTO(new PostDTO(post))
   }
 
   async getAllByDatePaginated (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {

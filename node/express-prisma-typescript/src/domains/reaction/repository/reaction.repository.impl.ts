@@ -36,14 +36,23 @@ export class ReactionRepositoryImpl implements ReactionRepository {
     return await Promise.all(posts.map(async (post) => await mapPostToExtendedPostDTO(post)))
   }
 
-  async delete (postId: string, userId: string, type: ReactionType): Promise<void> {
+  async delete (postId: string, userId: string): Promise<void> {
     await this.db.reaction.deleteMany({
       where: {
         postId,
-        userId,
-        type
+        userId
       }
     })
+  }
+
+  async isReacted (reactionId: string, userId: string): Promise<boolean> {
+    const reaction = await this.db.reaction.findFirst({
+      where: {
+        id: reactionId,
+        userId
+      }
+    })
+    return reaction !== null
   }
 
   async isLiked (postId: string, userId: string): Promise<boolean> {

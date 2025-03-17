@@ -50,25 +50,20 @@ export class ReactionServiceImpl implements ReactionService {
     return await this.reactionRepository.isRetweeted(postId, userId)
   }
 
-  async deleteReaction (postId: string, userId: string, reactionType: ReactionType): Promise<void> {
-    if (!postId) throw new NotFoundException('postId')
-    if (!isUuid(postId)) {
+  async deleteReaction (reactionId: string, userId: string): Promise<void> {
+    if (!reactionId) throw new NotFoundException('reactionId')
+    if (!isUuid(reactionId)) {
       throw new ValidationException([{ message: 'INVALID_UUID' }])
     }
+
     if (!userId) throw new NotFoundException('userId')
     if (!isUuid(userId)) {
       throw new ValidationException([{ message: 'INVALID_UUID' }])
     }
-    if (!reactionType) throw new NotFoundException('reactionType')
-    if (reactionType === ReactionType.LIKE) {
-      const isLiked = await this.reactionRepository.isLiked(postId, userId)
-      if (!isLiked) throw new ConflictException('NOT_LIKED')
-    } else if (reactionType === ReactionType.RETWEET) {
-      const isRetweeted = await this.reactionRepository.isRetweeted(postId, userId)
-      if (!isRetweeted) throw new ConflictException('NOT_RETWEETED')
-    } else {
-      throw new ConflictException('Reaction type must be either like or retweet')
-    }
-    await this.reactionRepository.delete(postId, userId, reactionType)
+
+    const isReacted: boolean = await this.reactionRepository.isReacted(reactionId, userId)
+    if (!isReacted) throw new ConflictException('NOT_REACTED')
+
+    await this.reactionRepository.delete(reactionId, userId)
   }
 }
