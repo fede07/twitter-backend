@@ -16,13 +16,13 @@ export class PostServiceImpl implements PostService {
     private readonly userRepository: UserRepository
   ) {}
 
-  async createPost (userId: string, data: CreatePostInputDTO, parentId?: string): Promise<{ post: PostDTO, images: Array<{ fileName: string, url: string }> }> {
+  async createPost (userId: string, data: CreatePostInputDTO): Promise<{ post: PostDTO, images: Array<{ fileName: string, url: string }> }> {
     if (!isUuid(userId)) {
       throw new ValidationException([{ message: 'INVALID_UUID' }])
     }
-    if (parentId) {
-      if (!isUuid(parentId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
-      const parentPost = await this.repository.getById(parentId)
+    if (data.parentId) {
+      if (!isUuid(data.parentId)) throw new ValidationException([{ message: 'INVALID_UUID' }])
+      const parentPost = await this.repository.getById(data.parentId)
       if ((parentPost === null)) throw new NotFoundException('post')
     }
     await validate(data)
@@ -43,7 +43,7 @@ export class PostServiceImpl implements PostService {
     data.images = imageUrls.map(({ key }) => key)
     const presignedUrls = imageUrls.map(({ fileName, presignedUrl }) => ({ fileName, url: presignedUrl }))
 
-    const post = await this.repository.create(userId, data, parentId)
+    const post = await this.repository.create(userId, data, data.parentId)
 
     return { post, images: presignedUrls }
   }

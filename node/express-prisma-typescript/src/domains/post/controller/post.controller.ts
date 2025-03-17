@@ -62,8 +62,6 @@ postRouter.get('/comment/by_post/:postId', async (req: Request, res: Response) =
   const { postId } = req.params
   const { limit, before, after } = req.query as Record<string, string>
 
-  console.log('POST 1 CALLED')
-
   try {
     const posts = await service.getCommentsByPostId(postId, { limit: Number(limit), before, after })
     return res.status(HttpStatus.OK).json(posts)

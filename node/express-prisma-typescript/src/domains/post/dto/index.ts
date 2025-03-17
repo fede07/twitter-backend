@@ -12,6 +12,10 @@ export class CreatePostInputDTO {
   @ArrayMaxSize(4)
   @IsString({ each: true })
     images?: string[]
+
+  @IsOptional()
+  @IsString()
+    parentId?: string
 }
 
 export class PostDTO {
